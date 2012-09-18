@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>文件锁(file locking) - xanpeng</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+	</head>
+
+	<body>
+		<div id="wrapper">
+			<div id="content">
+				<h2>文件锁(file locking)</h2>
+				<div class="cnt">
+					<p><a href="http://en.wikipedia.org/wiki/File_locking">file locking</a> 是指对一个文件加锁, 或者对文件的某些部分加锁.</p>
+
+<p>util-linux 包里面有 flock 工具, <code>man 1 flock</code> 可以看到工具用法, <code>man 2 flock</code> 可以看到 API 定义.<br/>
+flock 提供 advisory lock 语义, 它的用法是:</p>
+
+<pre><code># flock -xn test.lock -c 'vim test.file' // console 1
+# flock -xn test.lock -c 'cat test.file' // console 2, 读取失败, 马上返回, 因为指定 nonblock
+</code></pre>
+
+<p>python 里面的 <a href="http://docs.python.org/library/fcntl.html#module-fcntl">fcntl</a> 提供了 fcntl.flock 和 fcntl.fcntl, 它们提供的也是 advisory lock 的语义, 用法是:</p>
+
+<pre><code>// console 1
+&gt;&gt;&gt; f = open("test.file", "aw")
+&gt;&gt;&gt; fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+&gt;&gt;&gt; // 成功, 开始执行其他操作
+//
+// console 2
+&gt;&gt;&gt; f2 = open("test.file", "aw")
+&gt;&gt;&gt; fcntl.flock(f2.fileno(), fcntl.LOCK_EX) 
+&gt;&gt;&gt; flock 失败, 等待中...
+</code></pre>
+
+<p>fcntl.fcntl 功能比 fcntl.flock 更全面而强大, 后者就是用前者来实现的.</p>
+
+<p>上面的锁都是建议锁(advisory lock)方式, 需要使用者协调. 不过, <a href="http://kernel.org/doc/Documentation/filesystems/mandatory-locking.txt">某些 OS 还是支持强制锁(mandatory lock)的</a>, 一般是通过设置 FS 的 mount options + set group-id bit + unset group-execute bit 来实现的, 具体可 google 之.</p>
+
+					--EOF--
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://xanpeng.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+	</body>
+</html>
+

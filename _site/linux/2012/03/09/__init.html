@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>linux __init - xanpeng</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+	</head>
+
+	<body>
+		<div id="wrapper">
+			<div id="content">
+				<h2>linux __init</h2>
+				<div class="cnt">
+					<p>在阅读 linux 源码, 尤其是在编写示例内核模块的时候, 我们发现某些函数的前面使用了 __init, 如下面位于 mm/bootmem.c 中的代码:</p>
+
+<pre><code>static unsigned long __init init_bootmem_core(bootmem_data_t *bdata,
+    unsigned long mapstart, unsigned long start, unsigned long end)
+{
+    ...
+}
+</code></pre>
+
+<p>根据 /include/linux/init.h 中的注释:</p>
+
+<blockquote><p>These macros are used to mark some functions or initialized data (doesn't apply to uninitialized data) as `initialization' functions. The kernel can take this as hint that the function is used only during the initialization phase and free up used memory resources after ...</p></blockquote>
+
+<p>说明 __init 是对 kernel 的暗示, 告知 kernel 该函数仅仅在初始化(如安装模块的时候)阶段使用, 其使用的内存随后可以被清除.</p>
+
+					--EOF--
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://xanpeng.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+	</body>
+</html>
+

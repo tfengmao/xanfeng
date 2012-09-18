@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>在 dwm 中切换 gtk themes - xanpeng</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+	</head>
+
+	<body>
+		<div id="wrapper">
+			<div id="content">
+				<h2>在 dwm 中切换 gtk themes</h2>
+				<div class="cnt">
+					<p>不久前, 我开始使用 dwm. terminal 使用 urxvt, 文件浏览器使用 pcmanfm. 发现 pcmanfm 的界面很丑, 但不知道如何去调整.</p>
+
+<p>今日在看 ArchLinux wiki 上对 PCManFM 的介绍的时候, 才发现解决问题的根源:<br/>
+1. dwm 只是提供窗口布局等功能吧. 窗口渲染应该是 <a href="http://www.gtk.org/">gtk</a> 的工作.<br/>
+2. 可以执行 <code>gtk-theme-slector2</code> 选择一个 gtk2.0 皮肤. 所有图形界面都受影响.<br/>
+3. 下载 gtk 皮肤包, 解压到 /usr/share/themes, 即可用 selector 选择使用了. 图标等应该是包含在皮肤包中的, 遵循一定的规则才能使用.</p>
+
+<p>所以, gtk 是关键. 摘引官网介绍:</p>
+
+<blockquote><p>What is GTK+, and how can I use it?<br/>
+GTK+, or the GIMP Toolkit, is a multi-platform toolkit for creating graphical user interfaces. Offering a complete set of widgets, GTK+ is suitable for projects ranging from small one-off tools to complete application suites.</p></blockquote>
+
+					--EOF--
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://xanpeng.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+	</body>
+</html>
+

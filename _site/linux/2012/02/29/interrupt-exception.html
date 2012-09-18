@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>Linux 中断和异常 - xanpeng</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+	</head>
+
+	<body>
+		<div id="wrapper">
+			<div id="content">
+				<h2>Linux 中断和异常</h2>
+				<div class="cnt">
+					<h1>概念</h1>
+
+<p>同步(synchronous)中断: 指令执行时由 CPU 控制单元产生, 只有在一条指令终止执行后 CPU 才会发出中断.<br/>
+异步(asynchronous)中断: 由其他硬件设备依照 CPU 时钟信号随机产生的.<br/>
+在 Intel 微处理手册中, 把同步和异步中断分别称为<strong>异常(exception)</strong>和<strong>中断(interrupt)</strong>, 有时术语 "中断信号" 指这两种类型(同步和异步).</p>
+
+<p>中断:</p>
+
+<ul>
+<li>可屏蔽中断(maskable interrupt): 可被控制单元忽略.</li>
+<li>非可屏蔽中断(nonmaskable interrupt): 只被几个危急事件(如硬件故障)引起. 非可屏蔽中断总是由 CPU 辨认.</li>
+</ul>
+
+
+<p>异常:</p>
+
+<ul>
+<li>处理器探测异常(processor-detected exception)
+
+<ul>
+<li>故障(fault): 通常可以纠正, 从而不失连贯性地继续执行. 保存在内核态堆栈 eip 寄存器中的值是引起故障的指令地址.</li>
+<li>陷阱(trap): 保存在 eip 中的是一个随后要执行的指令地址. 只有当没有必要重新执行已终止的指令时, 才触发陷阱. 陷阱的主要用途是为了调试程序, 在这种情况下, 中断信号的作用是通知调试程序一条特殊指令已被执行(例如到了一个程序内的断点).</li>
+<li>异常终止(abort): 发生一个严重的错误, CPU 控制单元出了问题, 不能在 eip 寄存器中保存引起异常的指令的确切位置.</li>
+</ul>
+</li>
+<li>编程异常(programmed exception): 在编程者发出请求时发生. 由 int 或 int3 指令触发. 当 int(检查溢出)和 bound(检查地址出界)指令检查的条件不为真时, 也引起编程异常. 控制单元把编程异常当成陷阱来处理. 编程异常通常也叫<strong>软中断(software interrupt)</strong>, 这样的异常有两种常用的用途: <strong>执行系统调用</strong>, <strong>给调试程序通报一个特定的事件</strong>.</li>
+</ul>
+
+
+<p><strong>中断处理</strong>是内核执行的最敏感任务之一, 需满足约束:</p>
+
+<ul>
+<li>中断要尽可能快地处理完. 内核响应中断后的操作需分两部分: 关键而紧急的部分立即执行; 其余部分推迟执行.</li>
+<li>中断随时会来. 中断处理程序需考虑这种情况, 处理前一个中断时可以接受一个新的中断.</li>
+<li>内核代码中还是存在一些临界区, 在临界区中, 中断必须被禁止. 但这种临界区的数目必须尽可能地被限制.</li>
+</ul>
+
+
+<p>每个中断和异常是由0~255之间的一个数来标志, Intel 称这个8位无符号整数为<strong>向量(vector)</strong>. 非可屏蔽中断的向量和异常的向量是固定的, 可屏蔽中断的向量可以通过对中断控制器的编程来改变.</p>
+
+<h1>中断和异常处理程序的嵌套执行</h1>
+
+<p><img src="http://www.oreilly.de/catalog/9780596005658/figs/d1e16825-web.png" alt="alt kernel control path recursively executing" /></p>
+
+<h1>ULK "中断和异常" TOC:</h1>
+
+<ul>
+<li>中断信号的作用</li>
+<li>中断和异常
+
+<ul>
+<li>IRQ 和中断</li>
+<li>高级可编程中断控制器</li>
+<li>异常</li>
+<li>中断描述符表</li>
+<li>中断和异常的硬件处理</li>
+</ul>
+</li>
+<li>中断和异常处理程序的嵌套执行</li>
+<li>初始化中断描述符表
+
+<ul>
+<li>中断门, 陷阱门及系统门</li>
+<li>IDT 的初步初始化</li>
+</ul>
+</li>
+<li>异常处理
+
+<ul>
+<li>为异常处理程序保存寄存器的值</li>
+<li>进入和离开异常处理程序</li>
+</ul>
+</li>
+<li>中断处理
+
+<ul>
+<li>IO 中断处理</li>
+<li>处理器间中断处理</li>
+</ul>
+</li>
+<li>软中断及 tasklet</li>
+<li>工作队列</li>
+<li>从中断和异常返回</li>
+</ul>
+
+
+<h1>参考资料</h1>
+
+<ul>
+<li>ULK 第三版, 第四章"中断和异常"</li>
+</ul>
+
+
+					--EOF--
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://xanpeng.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+	</body>
+</html>
+

@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>理解boost::bind - xanpeng</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+	</head>
+
+	<body>
+		<div id="wrapper">
+			<div id="content">
+				<h2>理解boost::bind</h2>
+				<div class="cnt">
+					<p><em>好久没写博，就像已没有了梦想一样（汗！），每天也觉不充实。实是因为最近难得忙，我不得不投入全部心力。今日有阶段性成果，于是晚间拿起放下已久的C++。</em></p>
+
+<p>我在看<a href="http://blog.csdn.net/Solstice/article/details/5829421">muduo中的C++多线程库</a>，途中遇到boost::bind技法，陈硕在<a href="http://blog.csdn.net/Solstice/article/details/3066268">“以boost::function和boost:bind取代虚函数”</a>中“高屋建瓴”地探讨其好处，为我现在不能理解。本文打算理解boost::bind，搜寻得到“<a href="http://blog.csdn.net/hengyunabc/article/details/7773250">详细解析boost中bind的实现</a>”，很不错，本文的代码和理解多引自此文。</p>
+
+<h3>STL bind1st的实现</h3>
+
+<p>为了区别STL实现，下面例子中都在名字后加上“2”。可以看出bind1st的原理，实际上是把参数保存起来，等到调用时，再取出使用。<br/>
+这份代码还是好理解的，你会发现后面的boost::bind代码，会让人崩溃！</p>
+
+<p>Liquid error: No such file or directory - pygmentize</p>
+
+<h3>boost::bind的实现</h3>
+
+<p>下面的代码是前述博文作者从boost::bind源码中“抠”出来的。先列出main.cc，再列bind.h，你会发现，这代码是妖！</p>
+
+<p>Liquid error: No such file or directory - pygmentize</p>
+
+<p>Liquid error: No such file or directory - pygmentize</p>
+
+<p>理解这段代码，实非易事，如此多的模板使用让人眼花缭乱。从示例代码可以看出，bind记录参数，在调用函数时能灵活地传入参数。但实际上示例代码没有展示bind的真正效力。此处也不追问，且看这段妖码。分功能和语法技巧来分析这段代码。</p>
+
+<p>功能：通过cout输出跟踪调用路径，能理解bind.h中错综复杂抽象的作用，下面仅截取第一个调用的输出：</p>
+
+<p>Liquid error: No such file or directory - pygmentize</p>
+
+<p>可看出，bind.h仅提供了最多两个参数的bind。首个调用的执行流程：<br/>
+1、bind2先构造bind_t对象。<br/>
+1.1、先通过list2记录666和_1。<br/>
+2、再调用bind_t的operator()。<br/>
+2.1、先通过list2记录i1和i2。<br/>
+2.2、返回list2 operator()。<br/>
+3、执行list2的operator()，即执行f(a[base_type::a1_], a[base_type::a2_])。</p>
+
+<p>于是此时对于storage1/storage2，list1/list2等有了初步理解，至于其他更多细节，以及细节后面体现的设计理念，非目前力所能及之事，留待升级后解决。</p>
+
+<p>而对于语法技巧，我有很多疑问需要解决：<br/>
+1、private继承的含义。<br/>
+2、list2的operator()(type<R>, F&amp; f, A&amp; a, long)定义，为什么long没有变量名？为什么可以l_(type<result_type>(), f_, a, 0)这么调用？<br/>
+3、boost::arg/type这样的空类的作用是什么？<br/>
+4、构造函数explicit storage1(boost::arg&lt;I>)的参数也只是类型，没有变量名，为什么？而且提供static boost::arg&lt;I> a1_() { return boost::arg&lt;I>(); }的含义是什么？<br/>
+5、unwrapper的作用是什么？<br/>
+6、很多空类仅包含typedef，含义是什么？</p>
+
+<p>不打算立即全力解决这些问题，而是继续学习muduo.thread，这些问题随知识积累将逐步解决。<br/>
+可以看出，C++模板使用变化万端，整个代码难见C的直白风格，C++程序会有类型体系，变量、函数等都是类型，把这个观点放在心中，十分利于理解代码！</p>
+
+					--EOF--
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://xanpeng.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+	</body>
+</html>
+

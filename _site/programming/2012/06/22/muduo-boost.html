@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>boost in muduo - xanpeng</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+	</head>
+
+	<body>
+		<div id="wrapper">
+			<div id="content">
+				<h2>boost in muduo</h2>
+				<div class="cnt">
+					<p>本次借了解"<a href="http://xanpeng.github.com/2012/06/18/muduo-logging/">muduo's c++ high-perf logging</a>"学习c++, 本文介绍其中使用的boost.</p>
+
+<h1>ptr_vector</h1>
+
+<p>muduo AsyncLogging使用ptr_vector来管理buffer的. ptr_vector是<a href="http://www.boost.org/doc/libs/1_49_0/libs/ptr_container/doc/ptr_container.html">ptr_container</a>的一种, 后者代表pointer container library.</p>
+
+<p>这么来理解ptr_container:<br/>
+1. 创建很多Foo对象, 用std::vector<Foo>.<br/>
+2. 用std::vector&lt;Foo*>.<br/>
+3. 用std::vector&lt;boost::shared_ptr<Foo> >.<br/>
+4. 用ptr_vector<Foo>.</p>
+
+<p>ptr_container和std::vector&lt;shared_ptr<Foo> >相比的优劣可以看<a href="http://www.boost.org/doc/libs/1_49_0/libs/ptr_container/doc/ptr_container.html#motivation">这里</a>.</p>
+
+<p><strong><a href="http://www.boost.org/doc/libs/1_49_0/libs/smart_ptr/shared_ptr.htm">shared_ptr</a></strong>又用来做什么? 它是smart pointer的一种, 用来管理对象的使用, 确保在无人使用时执行dtor. <a href="http://www.boost.org/doc/libs/1_49_0/libs/smart_ptr/example/shared_ptr_example.cpp">这里</a>有一个示例程序:<br/>
+- 其中涉及<strong><a href="http://www.cplusplus.com/reference/algorithm/for_each/">for_each</a></strong>, 这是一个十分好用的函数.<br/>
+- 还涉及了函数对象(Function Object), 实际上是调用操作符(call operator). 据&lt;c++ primer v4> 14.8 "call operator and function objects": 定义了call operator的类对象被称为function objects, 因为它们被定义为类, 但使用方式就像调用函数一样, 见如下代码. -- <em>曾经让我纠结的Function Object原来如此简单:)</em>.</p>
+
+<pre><code>struct FooPtrOps {        &lt;---- 定义处
+    bool operator()(const FooPtr &amp; a, const FooPtr &amp; b) { return a-&gt;x &gt; b-&gt;x; }
+    void operator()(const FooPtr &amp; a) { std::cout &lt;&lt; a-&gt;x &lt;&lt; "\n"; }
+};
+...
+std::for_each(foo_vector.begin(), foo_vector.end(), FooPtrOps()); &lt;---- 调用处
+</code></pre>
+
+<p>shared_ptr体现的<a href="http://www.boost.org/doc/libs/1_49_0/libs/smart_ptr/shared_ptr.htm#Handle/Body">pimpl idiom</a>当然也是值得一提的.</p>
+
+					--EOF--
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://xanpeng.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+	</body>
+</html>
+

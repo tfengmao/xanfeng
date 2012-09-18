@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>abi of linux - xanpeng</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+	</head>
+
+	<body>
+		<div id="wrapper">
+			<div id="content">
+				<h2>abi of linux</h2>
+				<div class="cnt">
+					<p>在"<a href="http://xanpeng.github.com/2012/06/29/cpp-abi/">binary compatibility in c++</a>"中, 我提到编译器的abi, 操作系统的abi. 通过"<a href="http://xanpeng.github.com/2012/06/30/compiler-abi/">abi of compiler</a>"我尝试去理解"C++ abi", "compiler abi", 目前为止, 理解虽有些混乱, 但大概认为compiler abi和C++ abi所指相同. <em>暂停对这些问题的"冥思", 担心自己是在纠结"茴"字的几种写法, 希望今后能在实践中得到更深体悟.</em></p>
+
+<p>本文试考虑操作系统的abi, 以linux为例.<br/>
+在documentation/abi中指出, linux ABI是kernel和userspace之间的interface, 分为四类, 对应四个subdir: stable, testing, obsolete, removed. 举一个例子, 便明了.<br/>
+stable下的sysfs-module文件内容如下:</p>
+
+<pre><code>What:       /sys/module
+Description:
+    The /sys/module tree consists of the following structure:
+
+    /sys/module/MODULENAME
+        The name of the module that is in the kernel.  This
+        module name will show up either if the module is built
+        directly into the kernel, or if it is loaded as a
+        dyanmic module.
+
+    ...
+</code></pre>
+
+<p>这和前两篇文章的角度又不一样了, 暂不细究. 另看redhat的文档<a href="http://docs.redhat.com/docs/en-US/Red_Hat_Enterprise_Linux/6/html/Developer_Guide/lib.compatibility.abi.html">lib.compatibility.abi</a>, 其中说明:</p>
+
+<blockquote><p>ABI is a set of runtime conventions adhered to by all tools which deal with a compiled binary representation of a program.</p>
+
+<p>Examples of such tools include compilers, linkers, runtime libraries, and the operating system itself.</p>
+
+<p>ABI includes not only the binary file formats, but also the semantics of library functions which are used by applications.</p></blockquote>
+
+					--EOF--
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://xanpeng.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+	</body>
+</html>
+

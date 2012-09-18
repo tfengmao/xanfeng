@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>linux relayfs & relay - xanpeng</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+	</head>
+
+	<body>
+		<div id="wrapper">
+			<div id="content">
+				<h2>linux relayfs & relay</h2>
+				<div class="cnt">
+					<p>之前在看<a href="http://git.kernel.org/?p=linux/kernel/git/axboe/blktrace.git;a=summary">blktrace</a>的时候,据文档说blktrace使用到了<a href="http://relayfs.sourceforge.net/">relayfs</a>的技术,将大量kernel地址空间的数据高效地relay(转播,转达)到userland.对此产生了兴趣,但发现relayfs在kernel中的生命"好景不长".摘引relayfs官网资料:</p>
+
+<blockquote><p>03/24/07: The relay-apps examples have been updated to match the relay_open( API change in the 2.6.21 kernel.<br/>
+08/23/06: The relay-apps examples have now been completely converted to creating their files in debugfs using the new 'relay' API.<br/>
+02/19/06: As of 2.6.17, the fs part of relayfs has been <strong>removed</strong> and the rest of relayfs has been moved into <strong>kernel/relay.c</strong>. The functionality remains the same, the only difference being that the files representing the channel buffers will now live in a different filesystem. <br/>
+01/08/06: The relayfs support for non-relay ("control") files, exported relay file operations, and global relayfs channels has been added to the mainline kernel (and removed from 2.6.15-mm3). The relay-apps examples (starting with relay-apps-0.90) now make use of these features. <br/>
+09/10/05: An updated version of the 2.4 relayfs port is available.<br/>
+09/07/05: <strong>relayfs is now in the mainline kernel (2.6.14)</strong>.<br/>
+08/10/05: Thanks to Hareesh Nagarajan, there is now a 2.4 relayfs port - see the project files.<br/>
+03/12/05: relayfs included in the 2.6.11-mm3 kernel.)</p></blockquote>
+
+<p>2.6.14中relayfs的代码: <a href="http://lxr.linux.no/linux+v2.6.14/fs/relayfs/">link</a><br/>
+2.6.16.62时relayfs还在: <a href="http://lxr.linux.no/linux+v2.6.16.62/fs/relayfs/">link</a><br/>
+2.6.17时relayfs已经被移除了: <a href="http://lxr.linux.no/linux+v2.6.17/fs/relayfs/">link</a>,转到<a href="http://lxr.linux.no/linux+v2.6.17/kernel/relay.c">kernel/relay.c</a></p>
+
+<p>relayfs為什麼被从fs中移除,据说主要还是因为"bad performance",参考讨论:<a href="http://lwn.net/Articles/300992/">Low-level tracing plumbing</a>,<a href="http://lwn.net/Articles/301011/">Peter Zijlstra Re:Unified tracing buffer</a>,<a href="http://lwn.net/Articles/301012/">Tom Zanussi Re:Unified tracing buffer</a>.</p>
+
+					--EOF--
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://xanpeng.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+	</body>
+</html>
+

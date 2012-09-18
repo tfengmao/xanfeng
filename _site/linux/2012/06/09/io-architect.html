@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>Linux IO architecture - xanpeng</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+	</head>
+
+	<body>
+		<div id="wrapper">
+			<div id="content">
+				<h2>Linux IO architecture</h2>
+				<div class="cnt">
+					<p><em>本文是ULK Ch13 IO体系结构和设备驱动程序的笔记</em>.</p>
+
+<p>所有计算机都有一条总线, 用来连接大部分内部硬件设备. CPU和IO设备之间的数据通路成为IO总线, 80x86使用16位的地址总线对IO设备进行寻址, 使用8位,16位或者32位的数据总线传输数据. 每个IO设备以此连接到IO总线上, 这种连接使用了包含三个元素的硬件组织层次: IO端口, 接口和设备控制器.</p>
+
+<p><img src="http://i.imgur.com/fW1Xc.png" alt="" /></p>
+
+<hr />
+
+<h1>IO端口</h1>
+
+<p>每个连接到IO总线上的设备都有自己的IO地址集, 通常成为IO端口.有四条专用的汇编语言指令允许CPU对IO端口读写, 它们是in,ins,out和outs, 利用这些指令, CPU使用地址总线选择所请求的IO端口, 使用数据总线在CPU寄存器和端口之间传送数据.</p>
+
+<p>IO端口还可以直接映射到物理地址空间. 因此, CPU和IO设备之间的通信就可以使用对内存直接操作的汇编指令(如mov,and,or等). 现代的硬件设备倾向于选择映射IO, 因为速度更快, 并且可以结合DMA.</p>
+
+<p>系统设计者的目的是对IO编程提供统一的方法, 但又不牺牲性能. 为此每个设备的IO端口都被组织使用专用寄存器. CPU将指令写到device control register, 从status register读取设备状态. CPU通过input register取得数据, 通过output register写入数据.</p>
+
+<p><img src="http://i.imgur.com/XTpoc.png" alt="" /></p>
+
+<hr />
+
+<h1>IO接口 (IO interface)</h1>
+
+<p>是处于一组IO端口和对应的设备控制器之间的一种硬件电路, 起翻译器的作用, 把IO端口中的值转换成设备所需要的命令和数据, 在相反方向, 它检测设备状态变化, 对起状态寄存器作用的IO端口进行相应更新. 还可以通过IRQ线把这种电路连接到可编程中断控制器上, 以使他代表相应的设备发出中断请求.</p>
+
+<p>分专用IO接口(<em>键盘接口, 图形接口, 磁盘接口, 线鼠接口, 网络接口</em>)和通用IO接口(<em>并口:可用连打印机,移动磁盘,扫描仪等; 串口:类似并口,但传输是逐位的; SCSI接口; 通用串行总线USB</em>).</p>
+
+<hr />
+
+<h1>设备控制器</h1>
+
+<p>复杂的设备可能需要一个device controller来驱动, 控制器起两个重要作用:<br/>
+- 解释从IO接口接收到的高级命令, 通过向设备发送适当的电信号序列强制设备执行特定的操作.<br/>
+- 转换和适当地解释从设备接收到的电信号, 并修改(通过IO接口)状态寄存器的值.</p>
+
+<p>典型的设备控制器是磁盘控制器, 它从CPU(通过IO接口)接收"写这个数据块"之类的高级指令, 转换为"把磁头定位到正确的轨道"和"把数据写入这个磁道"之类的低级磁盘操作.</p>
+
+<hr />
+
+<h1>设备驱动程序模型</h1>
+
+<p>Linux 2.6提供了一些数据结构和辅助函数, 它们为系统中所有的总线,设备以及设备驱动程序提供了一个统一的视图, 这个框架被成为设备驱动程序模型.</p>
+
+<h2>sysfs</h2>
+
+<p>sysfs文件系统的目标是展现设备驱动程序模型组件间的层次关系. 该文件系的高层目录:<br/>
+- block: 块设备, 独立于所连接的总线.<br/>
+- devices: 所有被内核识别的硬件设备, 依照连接它们的总线对其进行组织.<br/>
+- bus: 系统中用于连接设备的总线.<br/>
+- drivers: 内核中注册的设备驱动程序.<br/>
+- class: 系统中设备的类型.<br/>
+- power: 处理一些硬件设备电源状态的文件.<br/>
+- firmware: 处理一些硬件设备的固件的文件.</p>
+
+<h2>kobject, kset</h2>
+
+<p>是设备驱动程序的核心数据结构, 每个kobject对应于sysfs文件系统中的一个目录.</p>
+
+<p>kobject被嵌入一个叫做"容器"的更大对象中, 容器描述设备驱动程序模型中的组件, 容器的典型例子有总线, 设备以及驱动程序的描述符.</p>
+
+<p>相关的kobject包含在同类型的容器中, 通过kset数据结构表示. kset集合组成subsystem, 一个subsystem可以包含不同类型的kset.</p>
+
+<p><img src="http://i.imgur.com/QfmCD.png" alt="" /></p>
+
+<p>如果想让kobject,kset或subsystem出现在sysfs子树中, 就必需先注册它们. 详情略.</p>
+
+<h2>设备驱动程序模型的组件</h2>
+
+<p>每个设备由一个device对象描述, 每个驱动程序由device_driver对象描述, 内核支持的每一种总线类型都由一个bus_type对象描述, 每个类由class对象描述.</p>
+
+<hr />
+
+<h1>设备文件</h1>
+
+<p>分为两种: 块设备文件和字符设备文件. block dev可以被随机访问, char dev数据不可被随机访问.</p>
+
+<p>设备标识符由类型(b,c)和一对参数组成, 第一个参数是主设备号(0major number, 它标识设备的类型, 通常具有相同主设备号和类型的所有设备文件共享相同的文件操作集合, 因为它们是由同一个设备驱动程序处理的. 第二个参数是次设备号(minor number), 它标识了主设备号相同的设备组中的一个特定设备, 例如, 由相同的磁盘控制器管理的一组磁盘具有相同的主设备号和不同的次设备号.</p>
+
+<p>mknod()用来创建设备文件, 设备文件通常位于/dev中. Documentation/devices.txt中存放了官方注册的已分配设备号和/dev目录节点.<br/>
+Linux 2.6开始, 主设备号的编码为12位, 次设备号为20位. 对分配设备号和创建设备文件来说, 如今喜欢动态分配多过静态分配.</p>
+
+<h2>动态分配设备号</h2>
+
+<p>驱动程序再注册阶段可以只指定设备号的分配范围, 无需指定精确的值, 因此, 新的硬件设备驱动程序不再需要从官方注册表中申请一个设备号, 而是可以仅仅使用当前系统中空闲的设备号. 但这样就不能永久的创建设备文件, 不过Linux 2.6内核支持动态创建设备文件, 通过系统中的udev工具集, 在系统启动时, udev程序通过扫描/sys/class子目录来寻找dev文件. 更多细节略.</p>
+
+<p>网卡是不直接与设备文件对应的硬件设备.</p>
+
+<h2>设备文件的VFS处理</h2>
+
+<p>访问普通文件, 是通过FS访问磁盘分区中的数据块; 而访问设备文件时, 只需要驱动硬件设备就可以了. VFS需要区分这二者的区别.</p>
+
+					--EOF--
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://xanpeng.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+	</body>
+</html>
+

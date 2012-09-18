@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>ps & getpid - xanpeng</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+	</head>
+
+	<body>
+		<div id="wrapper">
+			<div id="content">
+				<h2>ps & getpid</h2>
+				<div class="cnt">
+					<p><del>
+OT：我一直纠结中英文混排时, 该使用中文标点还是英文标点. 后来我一直使用的是全英文标点, 并在每一个标点后面加一个空格. 现在这个做法遇到两个难题:<br/>
+1、在Linux下面输入法的中英文标点切换不是那么直白, 我也懒得去搞这种小问题.<br/>
+2、更重要的，markdown貌似会自动排版, 其依据之一便是空格, 于是多加了空格之后, 文字的排版会很飘逸, context-related的文字会被错开.<br/>
+找到一份"规范": "<a href="http://textbook.textpattern.net/wiki/index.php?title=Zh-cn/Textpattern_%E4%B8%AD%E6%96%87%E5%8C%96%E8%A7%84%E8%8C%83">Zh-cn/Textpattern中文化规范</a>", 其实是他们的约定, 我先按照这个使用, 看能把我这方面的强迫症压制多久.
+</del></p>
+
+<h1>缘起</h1>
+
+<p>在<a href="http://xanpeng.github.com/2012/05/17/elf-libelf/">elf &amp; libelf, elftoolchain</a>中我提到, 通过<a href="http://xanpeng.github.com/2012/05/18/ltrace/">ltrace</a>查看 ps 是如何通过调用 <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/getpid.2.html">getpid</a> 得到进程 id 的.<br/>
+对此，可以发现有多处错误:<br/>
+1. ltrace 可能好像应该也许并然是跟不进 <a href="http://syscalls.kernelgrok.com/">syscall</a> 的(我们就把<code>ltrace -S</code>当成是<code>strace</code>好吧), 这是<a href="http://xanpeng.github.com/2012/04/12/strace/">strace</a>的工作.<br/>
+2. strace 没有发现 ps 调用了 getpid.</p>
+
+<p>这下尴尬了, 本来是要解决<a href="http://xanpeng.github.com/2012/05/15/more-linux-pthreads/">pthreads这个问题</a>的, 后来调用到进程组, 再调用到 getpid, 这下还惹出来一个 ps...</p>
+
+<h1>getpid</h1>
+
+<p>先来看 getpid 的问题. getpid 的确如所想那样位于 glibc 中, glibc 再调用对应的 syscall. 来看一个例子:</p>
+
+<pre><code>#include &lt;unistd.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;stdio.h&gt;
+
+int main()
+{
+    int pid;
+    pid = getpid();
+    pid = getpid();
+    return 0;
+}
+</code></pre>
+
+<p>first of all: strace 是可以看到 getpid syscall的:</p>
+
+<pre><code>...
+munmap(0xb77d1000, 61281)               = 0
+getpid()                                = 4827
+fstat64(1, {st_mode=S_IFCHR|0620, st_rdev=makedev(136, 2), ...}) = 0
+...
+</code></pre>
+
+<p>这证明了有 getpid 这么个 syscall. 同时也发现一个现象(其实是很废话的现象): syscall并不是说它们是在kernel中, 那样其实你是木有权限直接调的, 它是在 glibc 中, 由 glibc 做你的代理, 这个代理又去找kernel的代理人系统调用.</p>
+
+<p>更重要的, 我看到 getpid 在 strace 的结果中只出现了一次, 但是我在程序中明显地调用了两次, 这是为什么呢? 看这两份资料: "<a href="http://blog.csdn.net/sylin/article/details/949420">被 glibc 忽悠了</a>", "<a href="http://stackoverflow.com/questions/5766184/why-are-many-system-calls-getpid-captured-only-once-using-strace">...getpid captured only once...</a>". 简言之就是 glibc cache 了结果，第二次调用就径直用第一次的结果了.<br/>
+不错, 有时候我们<strong>不想 glibc 去使用 cache 结果</strong>, 咋整?<br/>
+答案就是不用 glibc 的接口, 以获取 pid 为例, 就是不调用 getpid. 后面再看来如何实现.</p>
+
+<p>再来看这段代码编出来的程序:</p>
+
+<pre><code>$ ldd ./test
+    linux-gate.so.1 =&gt;  (0xb7726000)
+    libc.so.6 =&gt; /lib/i686/cmov/libc.so.6 (0xb75ce000)
+    /lib/ld-linux.so.2 (0xb7727000)
+</code></pre>
+
+<p>可以看到, 它的确是用到 glibc 的(就是这里的 libc, 看<a href="http://xanpeng.github.com/2012/03/28/linux-pthread/">这个</a>).</p>
+
+<p>然而, 灰常遗憾的是, 上面ldd的结果是<strong>不能拿来当证据</strong>的. 因为:<br/>
+1. 不负责任地说, 用户态程序用到 glibc 的地方太多了, 你避无可避, 所以证据无效.<br/>
+2. 稍微负责任一点地, 可以说程序的入口函数极有可能就是定义在 glibc 里面的, 所以你逃不脱使用 glibc 啊, 所以证据无效.<br/>
+3. 负责任地说, 用<code>ltrace -l</code>来"验明正身"吧. 见下面的操作结果.</p>
+
+<p>去除程序的 getpid 调用, ldd 仍然得到 libc.<br/>
+去除/未去除 getpid 的 ltrace 结果:</p>
+
+<pre><code>// 没有 getpid
+$ ltrace -l /lib/i686/cmov/libc.so.6 ./test                                                                  
+__libc_start_main(0x8048394, 1, 0xbff8f834, 0x80483c0, 0x80483b0 &lt;unfinished ...&gt;
++++ exited (status 0) +++
+
+// 有 getpid
+$ ltrace -l /lib/i686/cmov/libc.so.6 ./test
+__libc_start_main(0x80483c4, 1, 0xbff9b524, 0x8048400, 0x80483f0 &lt;unfinished ...&gt;
+getpid(                                                                      = 5076
+getpid(                                                                      = 5076
++++ exited (status 0) +++))
+</code></pre>
+
+<p>我们发现, ltrace 飙出两个 getpid, 而 strace 只出现一个, 这说明 getpid 是会去判断是否已经有结果在内存中, 如有就不进 syscall, 没有才进 syscall. 相信下面细谈 getpid 流程时会看到细节.</p>
+
+<p>差点忘记: ldd 可以看出 glibc 是个动态库, 我是否可以直接使用工具(如 nm, objdump 等)去查看其中是否包含 getpid 呢?<br/>
+这实际上和动态连接库, elf 文件的组成相关了.</p>
+
+<p><strong>getpid 引发的 syscall 细节</strong></p>
+
+<p>在了解 getpid 细节之前, 先了解系统调用的基础知识. 这在我之前的post "<a href="http://xanpeng.github.com/2012/03/28/linux-syscall/">Linux 系统调用</a>"里面提到了.</p>
+
+<p>事实上, 在了解系统调用的大致流程之后, getpid 的流程也不言自明, 只不过现在仍不清楚细节. <em>此处也不列出详细的细节, 又以时间不足为理由略过吧.</em></p>
+
+<p>从 glibc 2.11 的代码看出部分细节, 可以发现, 这里getpid最终是直接通过汇编代码去触发系统调用的. 类似地, 我们也可以<strong>绕过 libc</strong>, 直接使用汇编去触发系统调用, 这就回答了上面的问题. 而且, kernel 代码中的 _syscallN 对需要的汇编代码做了一些封装, 我们可以使用这个.</p>
+
+<p>Liquid error: No such file or directory - pygmentize</p>
+
+					--EOF--
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://xanpeng.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+	</body>
+</html>
+

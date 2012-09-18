@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>Linux block device drivers - xanpeng</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+	</head>
+
+	<body>
+		<div id="wrapper">
+			<div id="content">
+				<h2>Linux block device drivers</h2>
+				<div class="cnt">
+					<p><em>本文是ULK Ch14 block device drivers的笔记.</em></p>
+
+<p>一次块设备操作设计多个内核组件:</p>
+
+<p><img src="http://i.imgur.com/SshZO.png" alt="" /></p>
+
+<p>每个组件采用不同长度的块来管理磁盘数据(<em>该话题可以参考"<a href="http://xanpeng.github.com/2012/02/24/sector-block/">扇区(sector), 物理/逻辑块(block)</a>"</em>):<br/>
+- 硬件块设备控制器采用称为"扇区(sector)"的固定长度的块来传送数据. 因此, IO调度程序和块设备驱动程序必须管理数据扇区.<br/>
+- VFS, 映射层和文件系统将磁盘数据放在称为"块"的逻辑单元中. 一个块对应文件系统中的一个最小的磁盘存储单元.<br/>
+- 块设备驱动程序应该能够处理数据的"段": 一个段就是一个内存页或内存页的一部分, 它们包含磁盘上物理相邻的数据块.<br/>
+- 磁盘高速缓存作用于磁盘数据的"页"上, 每页正好装在一个页框中.<br/>
+- 通用块层将所有的上层和下层的组件组合在一起, 因此它理解数据的扇区, 块, 段以及页.</p>
+
+<p>即使有许多不同的数据库, 它们通常也是共享相同的物理RAM单元. 下图中上层内核组件将页看成4个1024字节组成的块缓冲区, 块设备驱动程序正在传送页中的后3个块.</p>
+
+<p><img src="http://i.imgur.com/bIQK1.png" alt="" /></p>
+
+<hr />
+
+<h1>块</h1>
+
+<p>扇区是硬件传送数据的基本单位, 块是VFS和文件系统传送数据的基本单位. Linux中, 块大小必须是2的幂, 而且不能超过一个页框, 同时必须是扇区的整数倍, 因此在80x86体系结构中, 允许块的大小为512,1024,2048和4096字节. 文件系统的块大小可以在格式化时作出选择, 如果绕过文件系统读写块设备文件, 内核使用最大的块(4096字节).</p>
+
+<p>每个块都需要自己的缓冲区, 它是内核用来存放块内容的RAM内存区. 当内核从磁盘读出一个块时, 就用从硬件设备中获得的值来填充相应的块缓冲区; 当内核向磁盘中写入一个块时, 就用相关缓冲区的实际值来更新硬件设备上相应的一组相邻字节. 块缓冲区的大小通常要与相应块的大小相匹配.</p>
+
+<p>缓冲区首部是一个与每个缓冲区相关的buffer_head类型的描述符, 它包含内核处理缓冲区需要了解的所有信息.</p>
+
+<hr />
+
+<h1>通用块层</h1>
+
+<p>处理来自系统中所有块设备发出的请求, 它能够:<br/>
+- 将数据缓冲区放在高端内存, 仅当CPU访问其数据时, 才将页框映射为内核中的虚拟地址, 并在数据访问完后取消映射.<br/>
+- 通过一些附加的手段, 实现一个所谓的"零拷贝"模式, 将磁盘数据直接存放在用户地址空间, 而不是首先复制到内核内存区. 事实上, 内核为IO数据传送使用的缓冲区所在的页框就映射在进程的用户态虚拟地址空间中 (<em>参考"<a href="http://xanpeng.github.com/2012/05/31/linux-memory-management/">Linux memory management</a>", 物理内存有部分划归内核专用, 这里说的内核内存区指的应就是这块内核专用的内存</em>).<br/>
+- 管理逻辑卷.<br/>
+- 发挥大部分新磁盘控制器的高级特性, 如大主板磁盘高速缓存, 增强的DMA性能, IO传送请求的相关调度等.</p>
+
+<h2>bio结构</h2>
+
+<p>通用块层的核心数据结构是bio, 它描述了块设备的IO操作. 每个bio结构都包含一个磁盘存储区标识符(存储区中起始扇区号和扇区数目)和一个或多个描述与IO操作相关的内存区的段. 每个段由一个bio_vec结构描述.</p>
+
+<p><img src="http://i.imgur.com/AoEFe.png" alt="" /></p>
+
+<p>块IO操作期间, bio描述符的内容一直保持更新, 通用块层启动一次新的IO操作时, 调用bio_alloc()分配一个新的bio结构.</p>
+
+<h2>磁盘和磁盘分区</h2>
+
+<p>磁盘是一个由通用块层处理的逻辑块设备. 通常一个磁盘对应一个硬件块设备. 但是磁盘也可以是一个虚拟设备, 它建立在几个物理磁盘分区之上或一些RAM专用页中的内存区上. 在任何情形下, 借助通用块层提供的服务, 上层内核组件可以以同样的方式工作在所有的磁盘上.</p>
+
+<p>磁盘由gendisk结构描述. 如果硬盘划分成几个逻辑分区, 分区表保存在hd_struct结构数组中.</p>
+
+<hr />
+
+<h1>IO调度程序</h1>
+
+<p>块IO层不会为磁盘上每个被访问的扇区都单独执行一次IO操作, 这会导致极差的性能. 相反, 只要可能, 内核就试图把几个扇区合并在一起, 作为一个整体来处理, 以减少磁头的平均移动时间. 当内核组件发起块设备请求时, 内核将该IO操作加入调度, 真正的执行将会推迟--这种人为的推迟是提高块设备性能的关键机制.</p>
+
+<p>延迟请求使块设备的处理复杂化了. 每个块设备驱动程序都维持自己的请求队列, 它包含设备待处理的请求链表. 请求队列由一个大的数据结构request_queue表示, 实质上请求队列是一个双向链表, 其元素是请求描述符, 也就是requst数据结构, 而每个request包含一个或多个bio结构.</p>
+
+<p>每个请求队列都有一个允许处理的最大请求数, 由request_queue.nr_requests描述, 默认一个队列至多有128个待处理读请求和128个待处理写请求. 如果待处理的读/写请求数目超过了nr_requests, 通过设置queue_flags标志队列已满, 试图把请求加入的可阻塞进程被放置到request_list结构对应的等待队列中睡眠. 一个填满的请求队列对系统性能有负面影响, 因为它会强制许多进程去睡眠等待.</p>
+
+<h2>IO调度算法</h2>
+
+<p>当向请求队列中增加一条新的请求时, 通用块层会调用IO调度程序来确定请求队列中新请求的确切位置. IO调度程序试图通过扇区将请求队列排序, 其目的是减少磁头寻道的次数, 这和电梯算法类似, 因此IO调度程序也被称为电梯(elevator)算法.</p>
+
+<p>Linux 2.6提供了四种IO调度算法.<br/>
+- 预期算法(anticipatory):<br/>
+- deadline:<br/>
+- 完全公平队列(CFQ, complete fairness queueing): <br/>
+- Noop(no operation): 新请求通常插在调度队列的开头或者末尾, 下一个要处理的请求总是队列的第一个请求.</p>
+
+					--EOF--
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://xanpeng.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+	</body>
+</html>
+

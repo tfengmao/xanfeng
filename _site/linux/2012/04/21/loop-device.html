@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>loop device - xanpeng</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+	</head>
+
+	<body>
+		<div id="wrapper">
+			<div id="content">
+				<h2>loop device</h2>
+				<div class="cnt">
+					<p><a href="http://en.wikipedia.org/wiki/Loop_device">loop device</a> 的 loop 让我纠结了很多年了(...夸张了, 我接触 linux 也才两年), 我一直为 "loop" 的含义感到疑惑. 根据 <a href="http://en.wikipedia.org/wiki/Loop_device#Availability">wiki</a>:</p>
+
+<blockquote><p>Sometimes, the loop device is erroneously referred to as 'loopback' device, but this term is reserved for a networking device in the Linux kernel (cf. loopback). The concept of the 'loop' device is distinct from that of 'loopback', although similar in name.</p></blockquote>
+
+<p>看来很多人都有类似的疑惑了, 都搞混了 "loop" 和 "<a href="http://en.wikipedia.org/wiki/Loopback">loopback</a>" 的含义了, 后者是 network 的一个专有词汇.</p>
+
+<p>那么 loop device 到底是什么呢?<br/>
+它只是一个 pseudo ("fake") device (autually just a file) that acts as a block-based device (<a href="http://unix.stackexchange.com/a/4536/12224">ref</a>).<br/>
+那么为什么名为 "loop" 呢? 根据<a href="http://www.groad.net/bbs/read.php?tid-2352.html">这个</a>:</p>
+
+<blockquote><p>在使用之前，一个 loop 设备必须要和一个文件进行连接。这种结合方式给用户提供了一个替代块特殊文件的接口。因此，如果这个文件包含有一个完整的文件系统，那么这个文件就可以像一个磁盘设备一样被 mount 起来。</p>
+
+<p>理解一下 loop 之含义：对于第一层文件系统，它直接安装在我们计算机的物理设备之上；而对于这种被 mount 起来的镜像文件(它也包含有文件系统)，它是建立在第一层文件系统之上，这样看来，它就像是在第一层文件系统之上再绕了一圈的文件系统，所以称为 loop。</p></blockquote>
+
+<p>查看 loop device 文件: <code>ls /dev/loop*</code>.<br/>
+loop device 也可能不够用, 可以修改其数目配置, 然后重新 <code>modprobe loop</code> 即可.</p>
+
+					--EOF--
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://xanpeng.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+	</body>
+</html>
+

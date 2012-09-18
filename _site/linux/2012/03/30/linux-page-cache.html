@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>Linux 中的 Page Cache - xanpeng</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+	</head>
+
+	<body>
+		<div id="wrapper">
+			<div id="content">
+				<h2>Linux 中的 Page Cache</h2>
+				<div class="cnt">
+					<p>page_cache（页高速缓存）由RAM中的物理页组成，缓存中每一页都对应磁盘中的多个块。</p>
+
+<p>除了O_DIRECT之外，所有read和write都依赖于page_cache。</p>
+
+<p>page_cache中的数据单位是整页整页的数据，不过一个页面中的数据在磁盘上不必是相邻的，因此页面不能用设备号和块号来识别。page_cache中的页面是通过拥有者和拥有者数据中的索引（通常是inode和相应文件内的偏移量）识别的。</p>
+
+<p>page_cache的核心数据结构是address_space，每个页面描述符（struct page）包含两个成员：i_mapping指向inode（拥有该页面）的address_space对象，index是拥有者“地址空间”（此时可以将地址空间理解为磁盘上的文件）内的偏移量，单位大小是页。</p>
+
+<p>若page_cache中的页的所有者是文件，address_space对象就嵌入在VFS inode对象的i_data字段中。i_mapping字段总是指向含有inode数据的页所有者的address_space对象。</p>
+
+<p><strong>参考资料</strong>：<br/>
+Linux内核设计与实现</p>
+
+<p><em>many thanks to the cannot-named hackers.</em></p>
+
+					--EOF--
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://xanpeng.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+	</body>
+</html>
+

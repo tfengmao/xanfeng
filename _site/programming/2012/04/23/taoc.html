@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>C 语言编程艺术 - xanpeng</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+	</head>
+
+	<body>
+		<div id="wrapper">
+			<div id="content">
+				<h2>C 语言编程艺术</h2>
+				<div class="cnt">
+					<p><a href="http://wangcong.org/">王聪</a>大牛曾做了一次"The art of C programming"的演讲(<a href="http://wangcong.org/down/taoc.ppt">ppt</a>), 看完 slide 之后, 发现自己对 C 的理解还不是很深, 对很多细节也缺乏了解.</p>
+
+<p><em>gets 是危险的</em><br/>
+因为输入字串长度超过 buffer 长度时, 带来隐患. <a href="http://stackoverflow.com/questions/2843073/warninggets-function-is-dangerous">warning:gets function is dangerous</a>.</p>
+
+<p><em>Quine</em></p>
+
+<pre><code>char *f="char *f= %c%s%c;main(){printf(f,34,f,34,10);} %c";
+main(){printf(f,34,f,34,10);}
+</code></pre>
+
+<p><em>malloc</em><br/>
+- malloc(0)/realloc(p, 0) is implementation defined.<br/>
+- realloc(NULL, N) equals to malloc(N).<br/>
+- free(NULL) is safe.<br/>
+- Free a space that has already been freed is <strong>UNDEFINED BAHAVIOUR</strong>.</p>
+
+<p><em>art</em><br/>
+- Duff's Device(<a href="http://en.wikipedia.org/wiki/Duff's_device">wiki</a>, <a href="http://stackoverflow.com/questions/514118/how-does-duffs-device-work">so</a>)<br/>
+- <a href="http://en.wikipedia.org/wiki/Fast_inverse_square_root">Quake III's InvSqrt</a>: WTF!</p>
+
+<pre><code>float Q_rsqrt( float number )
+{
+    long i;
+    float x2, y;
+    const float threehalfs = 1.5F;
+
+    x2 = number * 0.5F;
+    y  = number;
+    i  = * ( long * ) &amp;y;                       // evil floating point bit level hacking
+    i  = 0x5f3759df - ( i &gt;&gt; 1 );               // what the fuck?
+    y  = * ( float * ) &amp;i;
+    y  = y * ( threehalfs - ( x2 * y * y ) );   // 1st iteration
+    // y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration, this can be removed
+
+    return y;
+}
+</code></pre>
+
+<p><em>principles of standard</em><br/>
+- existing code is important, existing implementations are not.<br/>
+- C code can be portable. C code can be non-portable. (<em>WTF?</em>)<br/>
+- avoid "quiet changes"<br/>
+- keep the spirit of C.</p>
+
+<p><em>the spirit of C</em><br/>
+- Trust the programmer. Don’t prevent the programmer from doing what needs to be done.<br/>
+- Keep the language small and simple.<br/>
+- Provide only one way to do an operation.<br/>
+- Make it fast, even if it is not guaranteed to be.</p>
+
+					--EOF--
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://xanpeng.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+	</body>
+</html>
+

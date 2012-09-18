@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>粗读muduo.net - xanpeng</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+	</head>
+
+	<body>
+		<div id="wrapper">
+			<div id="content">
+				<h2>粗读muduo.net</h2>
+				<div class="cnt">
+					<p><a href="http://code.google.com/p/muduo/">muduo.net</a>指陈硕写的C++开源网络库，学习它的目的是：<br/>
+1、了解网络编程。<br/>
+2、学习C++实践。</p>
+
+<p>muduo.net是极佳的网络编程学习资料，陈硕对此写了一系列的文章，讨论了网络编程的模式和一些细节。比如：<br/>
+1、<a href="http://files.cppblog.com/Solstice/multithreaded_server.pdf">多线程服务器的常用编程模型</a><br/>
+2、<a href="http://blog.csdn.net/solstice/article/details/5848547">发布一个基于Reactor模式的C++网络库</a><br/>
+3、<a href="http://blog.csdn.net/solstice/article/details/6527585">一谈网络编程学习经验(06-08更新)</a><br/>
+4、<a href="http://blog.csdn.net/solstice/article/details/5364096">学之者生，用之者死——ACE历史与简评</a><br/>
+5、<a href="https://github.com/downloads/chenshuo/documents/MuduoManual.pdf">muduo manual</a></p>
+
+<p>据此深入下去，一定能入网络编程的大门。但我日常不接触网络编程，不能碰触到实际问题，不能形成有效经验，如果就此猛扎下去，担心事倍功半。因此，本文不会深入细节，只列记muduo.net的要点。</p>
+
+<p>对于目的之二，陈硕说道“muduo.net使用的是object-based C++，而非object-oriented C++”，从源码也可以看出，muduo.net只有5000行左右的代码，没有乱七八糟的继承，<strong>大量的回调机制</strong>都使用boost::function+boost::bind，代码简洁同时表达力强！</p>
+
+<p>下面说明muduo.net的设计，穿插说明一些网络编程要点和C++实践技巧。muduo.net蕴涵的网络编程精义，非现在力所能及。</p>
+
+<h3>从EchoServer说起</h3>
+
+<p>muduo.net示例之一便是EchoServer，main函数很简单：<br/>
+1、创建EventLoop loop。EventLoop是muduo.net的灵魂，是陈硕选用的一种网络编程模式：reactor in threads。这种方案的特点是one loop per thread，有一个main reactor负责accept连接，然后把连接挂在某个sub reactor中（以round-robin的方式选择sub reactor），这样该连接的所有操作都在那个sub reactor所处的线程中完成。多个连接可能被分配到多个线程中，以充分利用CPU。使用固定大小的reactor pool，大小一般根据CPU核数确定。<em>更多相关陈述，参考MuduoManual 1.6.2 “常见的比方网络服务程序设计方案”。</em></p>
+
+<p>Liquid error: No such file or directory - pygmentize</p>
+
+<p>2、创建EchoServer server，以EventLoop指针和InetAddress实例作为参数，InetAddress很好理解，只是ip的封装。<br/>
+3、调用server.start()，进而调用TcpServer.start()，开始侦听连接请求。<br/>
+4、调用loop.loop()，处理每一个连接的消息。</p>
+
+<p>这些简单步骤的示例代码：</p>
+
+<p>Liquid error: No such file or directory - pygmentize</p>
+
+<p>上面的步骤后面有三个细节值得关注：<br/>
+1、muduo.net的抽象方式。<br/>
+2、EventLoop的工作方式。<br/>
+3、socket发送和接收buffer</p>
+
+<h4>muduo.net的抽象方式</h4>
+
+<p>1、EchoServer包含一个TcpServer。</p>
+
+<p>2.1、TcpServer包含一个Acceptor，用来监听客户端连接请求。<br/>
+2.1.1、Acceptor包含一个Socket，它只是socket的简单封装。<br/>
+2.1.2、Acceptor包含一个Channel，Channel表示一个连接通道，封装底层socket的通信，和下面的TcpConnection对比便明白。</p>
+
+<p>2.2、TcpServer包含一个EventLoopThreadPool，这就是前文提到的reactor pool，不展开说，暂只考虑一个EventLoop的处理方式。</p>
+
+<p>2.3、TcpServer还包含一个TcpConnection集合，用来表示所有的Tcp连接。TcpConnection跟Acceptor类似，不过语义不同而已。<br/>
+2.3.1、TcpConnection包含一个Socket，不用解释。<br/>
+2.3.2、TcpConnection包含一个Channel，表示通信通道，和前面一样。</p>
+
+<p>所以，新建一个EchoServer时，新建一个TcpServer，创建Acceptor监听连接请求，每来一个请求，将请求加到TcpConnection集合中，并分配给某个sub reactor（这里只考虑一个sub reactor，不考虑reacotr pool）。之后每个连接的通信就交给sub reactor（EventLoop）做。</p>
+
+<p>整个抽象过程中，用到一堆一堆的回调函数，前面已经说过，都是用boost::function+boost::bind来实现的，很方便。</p>
+
+<h4>EventLoop的工作方式</h4>
+
+<p>假设现在EventLoop管理100个连接，socket上什么时候有新数据来是不确定的，要检查和处理每个连接的数据读写，最土的方法就是轮询。但一般的做法是用select/poll/epoll，这三个机制要实现同一目的，作用是快速检查一堆设备（这里是socket）是否有数据待处理。</p>
+
+<p>所以每个EventLoop包含一个Poller，Poller的子类有PollPoller、EPollPoller、DefaultPoller，最终分别用poll和epoll系统调用，select好像没用到，估计是太土了。</p>
+
+<p>所以EventLoop的主体loop()函数大致如下：</p>
+
+<p>Liquid error: No such file or directory - pygmentize</p>
+
+<h4>socket发送和接收buffer</h4>
+
+<p>在reactor模式下，使用发送和接收buffer，是必要的。比如在write()时，你想发送100k，但是OS只接受了80k，你肯定不想原地等待发剩下的20k，你不知道要等多久，程序应该快速交出控制权，返回event loop，处理其他TcpConnection。所以看起来要维护发送和接收buffer。更详细的论述看MuduoManual的2.4节“Buffer类的设计与使用”，不细说。</p>
+
+<h3>网络编程本质论</h3>
+
+<p>在“<a href="http://blog.csdn.net/Solstice/article/details/6171831">Muduo 网络编程示例之零：前言</a>”，陈硕指出“TCP网络编程最本质的是处理三个半事件”：<br/>
+1、连接的建立，包括服务端接受(accept)新连接和客户端成功发起(connect)连接。<br/>
+2、连接的断开，包括主动断开(close或shutdown)和被动断开(read 返回 0)。<br/>
+3、消息到达，文件描述符可读。这是最为重要的一个事件，对它的处理方式决定了网络编程的风格（阻塞还是非阻塞，如何处理分包，应用层的缓冲如何设计等等）。<br/>
+4、消息发送完毕，这算半个。对于低流量的服务，可以不必关心这个事件；另外，这里“发送完毕”是指将数据写入操作系统的缓冲区，将由TCP协议栈负责数据的发送与重传，不代表对方已经收到数据。</p>
+
+<p>这其中有很多难点，也有很多细节需要注意，比方说：<br/>
+1、如果要主动关闭连接，如何保证对方已经收到全部数据？如果应用层有缓冲（这在非阻塞网络编程中是必须的，见下文），那么如何保证先发送完缓冲区中的数据，然后再断开连接。直接调用close(2)恐怕是不行的。<br/>
+2、如果主动发起连接，但是对方主动拒绝，如何定期(带back-off)重试？<br/>
+3、非阻塞网络编程该用边沿触发(edge trigger)还是电平触发(level trigger)？如果是电平触发，那么什么时候关注EPOLLOUT事件？会不会造成busy-loop？如果是边沿触发，如何防止漏读造成的饥饿？epoll一定比poll快吗？<br/>
+4、在非阻塞网络编程中，为什么要使用应用层缓冲区？假如一次读到的数据不够一个完整的数据包，那么这些已经读到的数据是不是应该先暂存在某个地方，等剩余的数据收到之后再一并处理？见lighttpd关于 /r/n/r/n 分包的 bug。假如数据是一个字节一个字节地到达，间隔10ms，每个字节触发一次文件描述符可读(readable)事件，程序是否还能正常工作？lighttpd 在这个问题上出过安全漏洞。<br/>
+5、在非阻塞网络编程中，如何设计并使用缓冲区？一方面我们希望减少系统调用，一次读的数据越多越划算，那么似乎应该准备一个大的缓冲区。另一方面，我们系统减少内存占用。如果有10k个连接，每个连接一建立就分配64k的读缓冲的话，将占用640M内存，而大多数时候这些缓冲区的使用率很低。muduo用readv 结合栈上空间巧妙地解决了这个问题。<br/>
+6、如果使用发送缓冲区，万一接收方处理缓慢，数据会不会一直堆积在发送方，造成内存暴涨？如何做应用层的流量控制？<br/>
+7、如何设计并实现定时器？并使之与网络IO共用一个线程，以避免锁。</p>
+
+<p>这就是我立即“收手”的原因，没有实战机会，看太深未免纸上谈兵。</p>
+
+<h3>其他</h3>
+
+<p>比如<a href="http://www.cnblogs.com/TianFang/archive/2008/09/15/1291050.html">boost::scoped_ptr</a>、<a href="http://www.cnblogs.com/TianFang/archive/2008/09/20/1294590.html">boost::weak_ptr</a>的使用，在muduo代码中可以领略到。</p>
+
+					--EOF--
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://xanpeng.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+	</body>
+</html>
+

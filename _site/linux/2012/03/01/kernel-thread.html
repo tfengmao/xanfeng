@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>linux kernel thread - xanpeng</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+	</head>
+
+	<body>
+		<div id="wrapper">
+			<div id="content">
+				<h2>linux kernel thread</h2>
+				<div class="cnt">
+					<h1>example<sup><a href="http://kerneltrap.org/node/20903" title="example code">kt</a></sup></h1>
+
+<script src="https://gist.github.com/1946789.js"> </script>
+
+
+<h1>kernel thread = kernel process?</h1>
+
+<p>上面的示例代码在执行后, 通过 ps | grep 可以看到如下结果:</p>
+
+<pre><code># insmod ./kthread.ko
+# ps aux | grep kthread         &lt;-- 上面示例中创建线程的名字为"kthread"
+root         2  0.0  0.0      0     0 ?        S    Feb29   0:00 [kthreadd]
+root      1735  0.0  0.0      0     0 ?        D    10:49   0:00 [kthread]
+# rmmod kthread
+# ps aux | grep kthread
+root         2  0.0  0.0      0     0 ?        S    Feb29   0:00 [kthreadd]
+</code></pre>
+
+<p><em>kthreadd</em> 是一个 kernel thread daemon, 是所有其他 kernel thread 的父亲<sup><a href="http://stackoverflow.com/a/4167208/264035">so</a></sup>.<br/>
+这个<em><a href="http://unix.stackexchange.com/questions/31595/are-kernel-threads-really-kernel-processes" title="Are kernel threads really kernel processes?">讨论</a></em>也认为 kernel thread 和 kernel process 差别不大, 可以基于此继续讨论该问题.</p>
+
+					--EOF--
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://xanpeng.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+	</body>
+</html>
+

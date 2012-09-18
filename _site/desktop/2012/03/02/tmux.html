@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>tmux 使用手册 - xanpeng</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+	</head>
+
+	<body>
+		<div id="wrapper">
+			<div id="content">
+				<h2>tmux 使用手册</h2>
+				<div class="cnt">
+					<p><a href="http://tmux.sourceforge.net/">tmux</a>是一个terminal multiplexer,我希望通过使用它避免使用鼠标在多个terminal标签中切换.<br/>
+参考: <a href="http://blog.hawkhost.com/2010/06/28/tmux-the-terminal-multiplexer/">1</a>,<a href="http://blog.hawkhost.com/2010/07/02/tmux-%E2%80%93-the-terminal-multiplexer-part-2/">2</a>.</p>
+
+<p><a href="https://docs.google.com/open?id=0Bw3wRz7ff9DHU2wwcnNVeE52VTA">tmux - a great terminal multiplexer</a></p>
+
+<ul>
+<li>C-b c Create new window</li>
+<li>C-b l Move to previously selected window</li>
+<li>C-b n Move to next window</li>
+<li>C-b p Move to previous window</li>
+<li>C-b &amp; Kill the current window</li>
+<li>C-b , Rename the current window</li>
+<li>C-b w List all windows / window numbers</li>
+<li><p>C-b <window number> Move to the specified window number, default binding are 0~9</p></li>
+<li><p>C-b f Search windows</p></li>
+<li><p>move-window [-d] [-s src-window] [-t dst-window]</p></li>
+<li><p>swap-window [-d] [-s src-window] [-t dst-window]</p></li>
+<li><p>C-b % Split the current window into two panes</p></li>
+<li>C-b q Show pane numbers(used to switch between panes)</li>
+<li>C-b o Switch to the next pane</li>
+<li>C-b : split-window Split window horizontallya # bind |/- split-window -h/v</li>
+<li>C-b { Move to current pane left</li>
+<li>C-b } Move to current page right</li>
+<li><p>C-b <space> Toggle through different pane layouts</p></li>
+<li><p>C-b :resize-pane    Resize down</p></li>
+<li>C-b :resize-pane -U Resize up</li>
+<li>C-b :resize-pane -L Resize left</li>
+<li>C-b :resize-pane -R Resize right</li>
+<li>C-b :resize-pane 20 Resize down by 20 cells</li>
+<li>C-b :resize-pane -U 20 Resize up by 20 cells</li>
+<li>C-b :resize-pane -L 20 Resize left ...</li>
+<li>C-b :resize-pane -R 20 Resize right ...</li>
+<li><p>C-b :resize-pane -t 2 20 Resize the pane with id of 2 down by 20 cells</p></li>
+<li><p>C-b d Detach current client</p></li>
+<li><p>C-b : Text prompt</p></li>
+<li>C-b ? List all keybindings</li>
+</ul>
+
+
+					--EOF--
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://xanpeng.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+	</body>
+</html>
+

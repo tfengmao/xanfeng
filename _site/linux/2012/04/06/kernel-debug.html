@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>Linux kernel debug - xanpeng</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+	</head>
+
+	<body>
+		<div id="wrapper">
+			<div id="content">
+				<h2>Linux kernel debug</h2>
+				<div class="cnt">
+					<p><strong>为什么要调试内核</strong>？<br/>
+- kernel crash了，去找原因。<br/>
+- 某个模块的行为不是预期的。</p>
+
+<p><strong>kernel的特点</strong>：<br/>
+- Supports runtime loading and unloading of additional code(kernel modules)<br/>
+- Conﬁgured using Kconﬁg, a domain specifc conﬁguration language.<br/>
+- Built using kbuild, a collection of complex Makeﬁles.<br/>
+- Heavily dependant on gcc and gccisms. Does not use or link with user space libraries, although supplies many of them - sprintf, memcpy, strlen, printk (not printf!).</p>
+
+<p>最原始却最有效的调试方法：<br/>
+- Your brain<br/>
+- printf。kernel 提供printk，可以在<strong>中断上下文</strong>中被调用，与printf类似，不支持float。</p>
+
+<p><strong>kernel debugger</strong>：<br/>
+- kdb<br/>
+- kgdb<br/>
+- LKCD<br/>
+- ksymoops<br/>
+- kdump<br/>
+- User Mode Linux</p>
+
+<p><strong>kgdb</strong><br/>
+- Requires two machines, a slave and a master.<br/>
+- gdb runs on the master, controlling a gdb stub in the slave kernel via the <a href="http://xanpeng.github.com/2012/04/06/linux-serial-port/">serial port</a>.<br/>
+- When an OOPS or a panic occurs, you drop into the debugger.<br/>
+- Very very useful for the situations where you dump core in an interrupt handler and no oops data makes it to disk - you drop into the debugger with the correct backtrace.</p>
+
+<p><strong>User Mode Linux(<a href="http://en.wikipedia.org/wiki/User-mode_Linux">1</a>,<a href="http://user-mode-linux.sourceforge.net/index.html">2</a>)</strong><br/>
+- For some kinds of kernel development(architecture independent, <strong>file systems</strong>, memory management), using UML is a life saver.<br/>
+- Allows you to run the Linux kernel in user space, and debug it with gdb.<br/>
+- Work is underway at making valgrind work on UML, which is expected to ﬁnd many bugs.</p>
+
+<p>但是目前User Mode Linux<a href="http://xanpeng.github.com/2012/04/07/user-mode-linux/">不能为我理解和接受</a>。</p>
+
+<p>参考<br/>
+- <a href="http://www.mulix.org/lectures/kernel_oopsing/kernel_oopsing.pdf">Your kernel just oopsed - What do you do, hotshot?</a><br/>
+- <a href="http://adam8157.info/blog/2012/04/setup-kernel-developing-environment/">搭建内核开发调试环境</a><br/>
+- <a href="http://stackoverflow.com/questions/4943857/linux-kernel-live-debugging-how-its-done-and-what-tools-are-used">Linux kernel live debugging, how it's done and what tools are used?</a></p>
+
+					--EOF--
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://xanpeng.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+	</body>
+</html>
+

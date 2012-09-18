@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>sequence point - xanpeng</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+	</head>
+
+	<body>
+		<div id="wrapper">
+			<div id="content">
+				<h2>sequence point</h2>
+				<div class="cnt">
+					<p><a href="http://en.wikipedia.org/wiki/Sequence_point">sequence point</a>就像是程序语句执行的barrier一样,执行到sequence point的时候,之前的语句的所有side effect都已经执行过了.根据sequence point可以确定程序某些语句的执行顺序,不能根据sequence point确定顺序的语句,其执行的效果就可能是未定的了.<br/>
+摘引wikipedia的定义:</p>
+
+<blockquote><p>A sequence point in imperative programming defines any point in a computer program's execution at which it is guaranteed that all side effects of previous evaluations will have been performed, and no side effects from subsequent evaluations have yet been performed.<br/>
+They are <strong>often mentioned in reference to C and C++</strong>, because the result of some expressions can depend on the order of evaluation of their subexpressions.</p></blockquote>
+
+<p>c/c++中的sequence point有<sup><a href="http://en.wikipedia.org/wiki/Sequence_point">wiki</a></sup>:</p>
+
+<blockquote><ul>
+<li>Between evaluation of the left and right operands of:
+
+<ul>
+<li>&amp;&amp; (logical AND),</li>
+<li>|| (logical OR),</li>
+<li>comma operators,</li>
+<li>a ? b : c. // at the "question-mark" operator</li>
+</ul>
+</li>
+<li>Before a function is entered in a function call((whether or not the function is inline).
+
+<ul>
+<li>Note that a function call f(a,b,c) is not a use of the comma operator and the order of evaluation for a, b, and c is unspecified.</li>
+</ul>
+</li>
+<li>At a function return, after the return value is copied into the calling context.</li>
+<li>At the end of a full expression.</li>
+<li>At the end of an initializer.</li>
+<li>Between each declarator in each declarator sequence; for example, between the two evaluations of a++ in int x = a++, y = a++;</li>
+</ul>
+</blockquote>
+
+<p>stackoverflow 上 <a href="http://stackoverflow.com/questions/4176328/undefined-behavior-and-sequence-points">"Undefined Behavior and Sequence Points"</a> 也讨论了这个问题:</p>
+
+<blockquote><ul>
+<li>RULE 1: Between the previous and next sequence point a scalar object shall have its stored value modified <em>at most once</em> by the evaluation of an expression.</li>
+<li>RULE 2: Furthermore, the prior value shall be accessed only to determine the value to be stored.
+
+<ul>
+<li>It means if an object is written to within a full expression, any and all accesses to it within the same expression <em>must be directly involved</em> in the computation of the value to be written. e.x.: <code>i = i + 1</code> is fine.</li>
+<li><code>std::printf("%d %d", i,++i);</code> invokes Undefined Behaviour.</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+
+					--EOF--
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://xanpeng.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+	</body>
+</html>
+

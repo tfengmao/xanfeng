@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>Linux signals - xanpeng</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+	</head>
+
+	<body>
+		<div id="wrapper">
+			<div id="content">
+				<h2>Linux signals</h2>
+				<div class="cnt">
+					<p><em>本文起于阅读ULK Ch11 Signals, 但ULK上说的不清楚, 于是参考了Boston University的<a href="http://cs-pub.bu.edu/fac/richwest/cs591_w1/notes/wk3_pt2.PDF">slide</a>.</em></p>
+
+<p>信号(signal)是发送给一个进程或者一组进程的"短消息", 最开始是由Unix为简化IPC引入的, 主要被用内核用来通知进程某些系统事件(system event)的发生.</p>
+
+<p>Linux支持31种非实时的信号, POSIX标准定义了一组实时信号.</p>
+
+<p>信号的发送(signal sending): 内核更新指定进程的task_struct的字段, 以此表示向这个进程发送了信号.<br/>
+信号的接收(signal receiving): 内核强制进程处理信号.<br/>
+pending signals: 已经发送, 但还未被接收的信号. (1)进程的每种类型的信号至多只能有一个处于pending状态, 后续的相同信号会被丢弃. (2)信号可以被阻止, 如阻止信号被接收.</p>
+
+<p>信号在发送给进程时, 通常是用一个数标识信号. 很多内核函数都会产生信号, 如:<br/>
+- send_sig()<br/>
+- send_sig_info()<br/>
+- force_sig()<br/>
+- sys_tkill()</p>
+
+<p>在进程恢复用户态的执行之前, 内核检查是否有pending, non-blocked的信号, 如果有, do_signal()就调用handle_signal()执行进程已经注册号的信号处理函数(signal handler). handle_signal()执行于内核态, 信号处理函数位于, 并且执行于用户态(<em>reside &amp; run in user mode code segments</em>). 信号处理函数也可以调用syscall, 但如此的话就使得signal mechanism变得复杂了.</p>
+
+<p><em>待插入图片11-2</em></p>
+
+					--EOF--
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://xanpeng.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+	</body>
+</html>
+

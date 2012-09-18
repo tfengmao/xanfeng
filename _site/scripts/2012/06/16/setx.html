@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>set -x - xanpeng</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+	</head>
+
+	<body>
+		<div id="wrapper">
+			<div id="content">
+				<h2>set -x</h2>
+				<div class="cnt">
+					<p>之前写shell脚本的时候, 为了跟踪每条命令的执行路径, 会在执行前/后添加echo, 今天凑巧发现<code>set -x</code>可以设置自动trace, manpage:</p>
+
+<blockquote><p>set - set or unset options and positional parameters</p>
+
+<p>-x The  shell  shall write to standard error a trace for each command after it expands the command and before it executes it. It is unspecified whether the command that turns tracing off is traced.</p></blockquote>
+
+<p>效果:</p>
+
+<pre><code>/home/xan/lab/muduo # set -x
+/home/xan/lab/muduo # ls
++ ls -A -N --color=tty -T 0    ----&gt; 就是这里!
+.gitignore      ChangeLog  License  TODO           backport.diff  clang.diff     cscope.out     examples  tags
+CMakeLists.txt  Doxyfile   README   armlinux.diff  build.sh       cscope.in.out  cscope.po.out  muduo
+</code></pre>
+
+<hr />
+
+<p>由于正文太短, 于是留下了很多空白来吐槽 -_-.</p>
+
+<p>没错, 我正在看<a href="https://github.com/chenshuo/muduo">muduo</a>, 更确切地, 当下我正在看muduo中的<a href="http://www.slideshare.net/chenshuo/efficient-logging-in-multithreaded-c-server/">high-perf multithreaded logger</a>, 更更确切地, 当下我准备继续C++的使用. 在读完ULK及相关东西之后, 我决定切换到C++, 让大脑自动处理Linux一段时间.</p>
+
+<p>而对于C++, 我"垂涎已久", 去年曾深入C++的内心世界, 后来因为现实, 不得不与之分隔, 而和(C, Linux)相处了很久. 我和(C, Linux)的感情很深, 然而它终还不是我的正室, 算是我的情人(<em>必须强调, 我不花心. 万一关注本文的mm注意了:(</em>), 久处必嫌, 近日我按耐不住地想见C++这个旧情人.<br/>
+我读了很多, 动手太少, 于是本次选择从muduo logger开始, 实际上去年我写了一个C版本的high-perf multithreaded logger, 其中很多想法和moduo logger不谋而合, 对于logger我有切身体会, 阅读muduo logger, 我会抛开表明繁华, 学到更深层的东西.</p>
+
+<p>最后, 我曾推荐 @鸦片鱼 去阅读muduo, 我已拨冗开始了, 不知他进展几何?</p>
+
+<p>近日在知乎参与了一些讨论, 比如<a href="http://www.zhihu.com/question/20295926">GitCafe</a>这个, 很多回复不是太水, 就是太意气用事, 目前仍没有解答问题本身. 回答者有些是IT界露脸较多的"名人", sigh, 我越来越觉得高调的不一定是高手, 有很多低调的牛人未见于水面之上. 不由勉励自己: 多学习, 多阅读, 多思考, 多动手, 少灌水.</p>
+
+<p>灌完本文之后, 可以洗洗睡了, muduo还没有开始编译了...<br/>
+另: 我十分想念我的ex, 却又害怕见到ex, 害怕现在的我还不能让她眼前一亮...</p>
+
+<p>sigh...</p>
+
+					--EOF--
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://xanpeng.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+	</body>
+</html>
+

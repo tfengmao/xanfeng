@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>了解gcov - xanpeng</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+	</head>
+
+	<body>
+		<div id="wrapper">
+			<div id="content">
+				<h2>了解gcov</h2>
+				<div class="cnt">
+					<p>看到网友Lenky的博文“<a href="http://lenky.info/2012/08/24/gcov%E5%88%9D%E8%AF%95%E7%94%A8/">gcov初试用</a>”，产生兴趣，于是继续了解。gcov可以用在Linux内核中，这是最吸引我的一点。</p>
+
+<p>有两个问题：<br/>
+1、gcov的实现原理。<br/>
+2、gcov如何工作在Linux内核中。</p>
+
+<p>gcov还有对应的GUI工具。</p>
+
+<h3>gcov示例</h3>
+
+<p><code>man gcov</code>。<br/>
+示例代码：</p>
+
+<p>Liquid error: No such file or directory - pygmentize</p>
+
+<p>体验步骤：<br/>
+1、编译：gcc -fprofile-arcs -ftest-coverage tmp.c<br/>
+2、发现生成额外文件：tmp.gcno<br/>
+3、执行：./a.out<br/>
+4、发现又生成额外文件：tmp.gcda<br/>
+5、执行gcov tmp.c，发现生成额外文件tmp.c.gcov<br/>
+6、cat tmp.c.gcov，内容如下，“#”表示该行没有执行到。</p>
+
+<p>Liquid error: No such file or directory - pygmentize</p>
+
+<h3>gcov原理</h3>
+
+<p>根据<a href="http://gcc.gnu.org/onlinedocs/gcc/Gcov-Intro.html#Gcov-Intro">gcov官方文档</a>，gcov只能处理GCC(GNU Compiler Collection)编译的代码。而且gcov是以代码行为处理单位的，所以使用gcov前，最好抑制gcc做代码优化，写代码时别乱并行。</p>
+
+<p>用户态程序使用gcov的原理：使用编译选项“-fprofile-arcs、-ftest-coverage”，告诉编译器在目标文件中插入额外的代码。执行程序时，收集counter数据，并和源代码关联，生成最终结果。(<a href="http://lwn.net/2002/0214/a/gcov.php3">ref</a>)</p>
+
+<h3>Linux内核使用gcov</h3>
+
+<p>内核和用户态程序完全不同，内核不是以一个程序的方式存在的，因此gcov的处理方式也必然不同，暂且不去细究。</p>
+
+<p>内核gcov的结果是随时间增长的，因为内核一直在运行，比如jbd journal.c，diff结果明显看出计数增加。<br/>
+而对于还没有用到的功能，gcov的结果为空，比如jbd recovery.c。</p>
+
+<p>使用前需配置内核选项，2.6.31之后的内核启用GCOV支持即可，详看这两份文档：<br/>
+1、<a href="http://ltp.sourceforge.net/coverage/gcov.php">gcov-kernel - a gcov infrastructure for the Linux kernel</a><br/>
+2、<a href="http://lenky.info/2012/08/24/%E8%AF%95%E7%94%A8%E5%86%85%E6%A0%B8gcov/">试用内核gcov</a></p>
+
+					--EOF--
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://xanpeng.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+	</body>
+</html>
+

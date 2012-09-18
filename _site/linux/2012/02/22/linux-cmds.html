@@ -1,0 +1,200 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>linux 常用命令备忘 - xanpeng</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+	</head>
+
+	<body>
+		<div id="wrapper">
+			<div id="content">
+				<h2>linux 常用命令备忘</h2>
+				<div class="cnt">
+					<p>日常工作中, 这些命令帮我们快速解决问题. 这些命令多是 <a href="http://en.wikipedia.org/wiki/GNU_toolchain">GNU toolchain</a> 下的 <a href="http://en.wikipedia.org/wiki/GNU_Binutils">binutils</a> 和 <a href="http://en.wikipedia.org/wiki/Coreutils">coreutils</a> 里面的.</p>
+
+<!-- ************************************************* -->
+
+
+<h1>文件</h1>
+
+<!-- ************************************************* -->
+
+
+<p>统计文件夹的大小</p>
+
+<pre><code>du -h --max-depth=1 // human-readable, 指定显示文件夹深度
+du -sm // -s: summerize, -m: 按 M byte 单位显示
+</code></pre>
+
+<p>将程序添加进系统路径</p>
+
+<pre><code>export PATH=$PATH:/path/to/dir1:/path/to/dir2 // per-session
+vim /etc/profile, 修改 PATH, source(.) /etc/profile // 对所有用户生效
+</code></pre>
+
+<p>比较多个文件的内容是否一致<sup><a href="http://unix.stackexchange.com/questions/33638/diff-several-files-true-if-all-not-equal">us</a></sup></p>
+
+<pre><code># md5sum * | awk 'NR&gt;1 &amp;&amp; $1!=last {exit 100} {last=$1}'
+</code></pre>
+
+<p>文件描述符 fd 相关(<a href="http://www.cyberciti.biz/tips/linux-procfs-file-descriptors.html">1</a>, <a href="http://www.cyberciti.biz/faq/linux-increase-the-maximum-number-of-open-files/">2</a>)</p>
+
+<pre><code>// 获取进程 id
+# ps aux | grep PROG
+# pgrep PROG
+# pidof PROG
+
+// 获取指定 PID 打开的文件
+# lsof -p PID
+# ls /proc/PID/fd
+
+// 计算所有 fd 数目
+# lsof | wc -l
+
+// 列出 #fd in Kernel Memory
+# sysctl fs.file-nr
+fs.file-nr = 640    0    398358
+含义:
+640    # of allocated fd.
+0      # of unused-but-allocated fd.
+398358 system-wide maximum # of fd.
+
+// 列出容许 open fd 的最大值
+# cat /proc/sys/fs/file-max
+398358 - normal user can have open in single login session.
+
+// 查看 open files hard/soft limits
+// [ulimit](http://ss64.com/bash/ulimit.html) 是 bash built-in command like cd.
+
+// http://stackoverflow.com/questions/34588/how-do-i-change-the-number-of-open-files-limit-in-linux
+// soft limits are simply the currently enforced limits
+// hard limits mark the maximum value which cannot be exceeded by setting a soft limit
+# ulimit -Hn 
+# ulimit -Sn
+</code></pre>
+
+<p><a href="http://stackoverflow.com/a/2228175/264035">对 svn workcopy 下的所有文件(除.svn) 外应用 dos2unix</a></p>
+
+<pre><code>$ find . -type f \! -path \*/\.svn/\* -exec dos2unix {} \;
+</code></pre>
+
+<!-- ************************************************* -->
+
+
+<h1>进程</h1>
+
+<!-- ************************************************* -->
+
+
+<p><a href="http://www.cyberciti.biz/faq/understanding-bash-fork-bomb/">fork bomb</a></p>
+
+<pre><code>:({ :|:&amp; };:)
+</code></pre>
+
+<p><a href="http://superuser.com/questions/117913/ps-aux-output-meaning">ps aux 输出的含义</a></p>
+
+<pre><code># pa aux 
+USER       PID  %CPU %MEM  VSZ RSS     TTY   STAT START   TIME COMMAND
+timothy  29217  0.0  0.0 11916 4560 pts/21   S+   08:15   0:00 pine  
+root     29505  0.0  0.0 38196 2728 ?        Ss   Mar07   0:00 sshd: can [priv]   
+can      29529  0.0  0.0 38332 1904 ?        S    Mar07   0:00 sshd: can@notty  
+
+USER = user owning the process
+PID = process ID of the process
+%CPU = It is the CPU time used divided by the time the process has been running.
+%MEM = ratio of the process’s resident set size to the physical memory on the machine
+VSZ = virtual memory usage of entire process
+RSS = resident set size, the non-swapped physical memory that a task has used
+TTY = controlling tty (terminal)
+STAT = multi-character process state
+START = starting time or date of the process
+TIME = cumulative CPU time
+COMMAND = command with all its arguments
+</code></pre>
+
+<!-- ************************************************* -->
+
+
+<h1>miscellaneous</h1>
+
+<!-- ************************************************* -->
+
+
+<p>查看 dns server</p>
+
+<pre><code>cat /etc/resolv.conf
+</code></pre>
+
+<p>查看使用的 io scheduler</p>
+
+<pre><code># cat /var/log/boot.msg | grep 'io scheduler'
+// 示例输出:
+&lt;6&gt;[    1.393938] io scheduler noop registered
+&lt;6&gt;[    1.394072] io scheduler anticipatory registered
+&lt;6&gt;[    1.394208] io scheduler deadline registered
+&lt;6&gt;[    1.394375] io scheduler cfq registered (default)
+</code></pre>
+
+<p>将程序放在后台执行, 并且抑制其输出到控制台</p>
+
+<pre><code># command &gt; /dev/null 2&gt;&amp;1 &amp;
+</code></pre>
+
+<p>查看上一个程序执行的状态(通常0代表成功,其他代表失败.查询依据应是errno,这是全局唯一的)</p>
+
+<pre><code># echo $?
+</code></pre>
+
+<p>设置 su 的密码</p>
+
+<pre><code># passwd root
+</code></pre>
+
+<p>修改用户名（非当前登录）</p>
+
+<pre><code># usermod -l NEW_NAME OLD_NAME
+</code></pre>
+
+<p>增加".."和"..."语义</p>
+
+<pre><code># vim ~/.bashrc
+// 增加如下内容
+alias ..='cd ..'
+alias ...='cd ../..'
+</code></pre>
+
+<p>获取page size(<a href="http://wangcong.org/blog/archives/764">ref</a>)</p>
+
+<pre><code># grep ^KernelPageSize /proc/self/smaps
+</code></pre>
+
+<p>在 <code>tail -f</code> 使用高亮</p>
+
+<pre><code># tail -f /var/log/logfile | perl -p -e 's/(something)/\033[7;1m$1\033[0m/g;'
+# (更多: [`tail -f` with highlighting](http://blog.nominet.org.uk/tech/2005/05/26/tail-f-with-highlighting/))
+</code></pre>
+
+<p><a href="http://www.ducea.com/2006/08/07/how-to-change-the-hostname-of-a-linux-system/">修改 hostname</a></p>
+
+<pre><code>每个发行版的处理方式还不一样, 这里给出貌似必杀技
+# sysctl kernel.hostname
+# sysctl kernel.hostname=xmachine
+</code></pre>
+
+					--EOF--
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://xanpeng.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+	</body>
+</html>
+

@@ -1,0 +1,98 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>Linux Process Group & Threads Group - xanpeng</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+	</head>
+
+	<body>
+		<div id="wrapper">
+			<div id="content">
+				<h2>Linux Process Group & Threads Group</h2>
+				<div class="cnt">
+					<p>不知为何, 网上讨论 Process Group 和 Threads Group 的都很少.<br/>
+[5-25] 经过更多的搜寻, 仍旧没有找到单独完整地讲述 Process Group 和 Threads Group 的. 我不由得想, kernel 是否仅仅是在 task_struct 数据结构上支持这么两个概念而已, 并没有针对于 process/threads group 改变原有的机理, 如进程调度? 因此, 此处暂停这块的了解.</p>
+
+<h1>process group</h1>
+
+<p>在"Linux System Programming" 5.6 "Sessions and Process Groups" 中有提到 Process Group:</p>
+
+<ul>
+<li>process group is a collection of one or more processes generally associated with each other for the purposes of <em>job control</em>.</li>
+<li>primary attribute of a process group is that <em>signals</em> may be sent to all processes in the group.</li>
+<li>each process is a member of a process group.</li>
+<li>process group is identified by a process group ID(<em>pgid</em>).</li>
+<li>process group has a <em>leader</em>.</li>
+<li>pgid = leader's pid.</li>
+<li>leader 终止时, 如果进程组里仍有进程, 则进程组依然存在. -- 此时, pgid 如何变化? leader 如何变化?</li>
+</ul>
+
+
+<p>提到的 sessions 部分:</p>
+
+<ul>
+<li>当用户登入机器时, <em>login process</em> 创建一个新的 session, 包含一个进程: user's login shell.</li>
+<li>login shell 成为 <em>session leader</em>.</li>
+<li><em>session ID</em> = session leader's pid.</li>
+<li>A session = A collection of 1+ <em>process groups</em>.</li>
+<li>session arranges a logged-in user's activities, 关联处理用户 terminal IO 的终端(tty device).</li>
+<li>process groups in a session are divided into 1 (one single) <em>forground</em> process group, and 0+ <em>background</em> process groups.</li>
+<li>when user exits a terminal, a <em>SIGQUIT</em> is sent to all processes in the foreground process group.</li>
+<li>on a given system, there are <em>many</em> sessions: one for each user login session, and others for processes not tied to user login sessions (如 daemons).</li>
+</ul>
+
+
+<p>其实有点跑题了, 不过我一向是把跑题当成是函数调用的...所以继续调用 sessions.</p>
+
+<p>上面说到, 退出 terminal 时, 仅 foreground process group 被发 SIGQUIT, 那么如果我把任务放到后台跑(&amp;), 岂不就可以安然退出 terminal 呢? 这么简单? 和 screen, tmux 有和区别?<br/>
+经过实际操作, 后台进程确实不会在退出 terminal 时被 QUIT 的.</p>
+
+<p>既然说到 foreground 和 background, 我们当然有熟悉的 fg/bg, <code>man fg</code> 可以知道 "fg [job_id]", 这里的 job_id 不是 pid, 可以通过 <code>jobs</code> 查看当前 session 下的 jobs, 似乎如果你强关 terminal 之后, jobs 信息是被清空的, 即使还是有 background processes 在跑.</p>
+
+<p>说到这里, 可以猜想, fg/bg 可能只是设置进程的 sessionid 字段吧?</p>
+
+<p>说到这里, 不妨列出 task_struct 的一些字段(2.6.32.36):</p>
+
+<pre><code>pid_t pid;  
+pid_t tgid;   
+struct task_struct *real_parent; /* real parent process */  
+struct task_struct *parent; /* recipient of SIGCHLD, wait4() reports */  
+struct task_struct *group_leader;   /* threadgroup leader */  
+
+/*  
+ * ptraced is the list of tasks this task is using ptrace on.  
+ * This includes both natural children and PTRACE_ATTACH targets.  
+ * p-&gt;ptrace_entry is p's link on the p-&gt;parent-&gt;ptraced list.  
+ */  
+struct list_head ptraced;  
+struct list_head ptrace_entry;  
+</code></pre>
+
+<p>看到这里的 ptraced, 是否觉得熟悉而又多了些感悟呢? 看这里: "<a href="http://xanpeng.github.com/2012/05/06/gdb/">gdb 原理</a>".</p>
+
+<pre><code>struct list_head thread_group;  
+struct thread_struct thread;  
+unsigned int sessionid;  
+</code></pre>
+
+<h1>thread group</h1>
+
+<p>在"<a href="http://xanpeng.github.com/2012/06/10/process/">Linux processes</a>"讨论了线程组, 实际上这是一个简单的概念而已.</p>
+
+					--EOF--
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://xanpeng.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+	</body>
+</html>
+

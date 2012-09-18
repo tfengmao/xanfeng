@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>inotify - xanpeng</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+	</head>
+
+	<body>
+		<div id="wrapper">
+			<div id="content">
+				<h2>inotify</h2>
+				<div class="cnt">
+					<p>今天跑了很多后台任务, 我想知道这些任务是否都执行完毕. 我人肉轮询 <code>ps aux | grep COMMAND</code>, 以此判断是否完成. 这样比较麻烦, 想到两个"点子":<br/>
+1. 是否可以 tail -f 符合某个 regex 的进程.<br/>
+2. 通过监视文件夹, 判断任务完成. 因为一般我们的 output 都是文件.</p>
+
+<p>监视功能是 monitor-callback 模式吧, <a href="http://en.wikipedia.org/wiki/Inotify">inotify</a> 提供了这个功能. 没去细看文档和代码, 估计还是逃不脱 register 和 callback.</p>
+
+<p>可以利用 inotify 来 monitor 文件夹, <a href="http://www.ibm.com/developerworks/linux/library/l-ubuntu-inotify/index.html">这里</a>提供了一个利用 inotify 编程的简单例子, 跑起来是这个样子的:</p>
+
+<pre><code>% ./watcher  &amp; 
+% rm a b c
+The file a was deleted.
+The file b was deleted.
+The file c was deleted.
+</code></pre>
+
+<p><a href="https://github.com/rvoicilas/inotify-tools/wiki/">inotify-tools</a> 则提供类似, 但更为全面的功能. 安装之后有 inotifywait 和 inotifywatch 两个程序, 比如:</p>
+
+<pre><code># inotifywait -r -m /home/
+Setting up watches.  Beware: since -r was given, this may take a while!
+Watches established.
+/home/ OPEN,ISDIR
+/home/ CLOSE_NOWRITE,CLOSE,ISDIR
+/home/ OPEN,ISDIR xan
+/home/xan/ OPEN,ISDIR
+/home/ CLOSE_NOWRITE,CLOSE,ISDIR xan
+</code></pre>
+
+<p>更多细节 man 就可以了, 这里略过.</p>
+
+<p><strong>总结</strong></p>
+
+<p>可知, inotify[-tools] 可以拿来监视对指定文件夹的操作, 但 inotify 的能力应该不仅限于此, 它应是一个消息订阅(register-callback)机制, 它存在的理由可能是提供的机制非常灵活易用, 占用资源少, 响应及时等. 后续有空时值得去细看一下.</p>
+
+					--EOF--
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://xanpeng.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+	</body>
+</html>
+

@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>spin lock - xanpeng</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+	</head>
+
+	<body>
+		<div id="wrapper">
+			<div id="content">
+				<h2>spin lock</h2>
+				<div class="cnt">
+					<p>wikipedia 上对 <a href="http://en.wikipedia.org/wiki/Spinlock">spinlock</a> 做了不错的解说. 此处做一些摘引.</p>
+
+<blockquote><ul>
+<li>在线程编程中, spinlock 是这样的一种 lock, 线程循环地等待(spins)加锁, 直到 lock available.</li>
+<li>可知, spinlock 属于 <a href="http://en.wikipedia.org/wiki/Busy_waiting">busy waiting</a>.</li>
+<li>spinlock 更适合执行时间短的任务, 因此能够避免操作系统进程调度和 context 切换的时间. 对于执行时间较长的任务, spinlock 的效率可能很低, 因为在线程被调度出 CPU 的时候, spinlock 并不能被其他要求进入同一 critical section 的线程获得.</li>
+<li>正确实现 spinlock 机制不是一件容易的事情, 一般来说, spinlock 只能方便地由特殊的汇编指令(如原子性的 test-and-set 指令)实现.</li>
+</ul>
+</blockquote>
+
+<p><a href="http://guancheng.42qu.com/">冠诚</a> 在他的博文 <a href="http://www.parallellabs.com/2010/01/31/pthreads-programming-spin-lock-vs-mutex-performance-analysis/">"pthreads 并行编程之 spin lock 与 mutex 性能对比分析"</a> 中详细比较了 mutex (sleep-waiting) 和 spinlock (busy-waiting) 的性能, 他的总结是:</p>
+
+<blockquote><ol>
+<li>Mutex适合对锁操作非常频繁的场景，并且具有更好的适应性。尽管相比spin lock它会花费更多的开销（主要是上下切换），但是它能适合实际开发中复杂的应用场景，在保证一定性能的前提下提供更大的灵活度.</li>
+<li>spin lock的lock/unlock性能更好(花费更少的cpu指令)，但是它只适应用于临界区运行时间很短的场景。而在实际软件开发中，除非程序员对自己的程序的锁操作行为非常的了解，否则使用spin lock不是一个好主意(通常一个多线程程序中对锁的操作有数以万次，如果失败的锁操作(contended lock requests)过多的话就会浪费很多的时间进行空等待).</li>
+<li>更保险的方法或许是先（保守的）使用 Mutex，然后如果对性能还有进一步的需求，可以尝试使用spin lock进行调优。毕竟我们的程序不像Linux kernel那样对性能需求那么高(Linux Kernel最常用的锁操作是spin lock和rw lock).</li>
+</ol>
+</blockquote>
+
+<p>linux 中的 <a href="http://www.mjmwired.net/kernel/Documentation/spinlocks.txt">spinlock</a>.</p>
+
+					--EOF--
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://xanpeng.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+	</body>
+</html>
+

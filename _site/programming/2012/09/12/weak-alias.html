@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>弱符号和别名 - xanpeng</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+	</head>
+
+	<body>
+		<div id="wrapper">
+			<div id="content">
+				<h2>弱符号和别名</h2>
+				<div class="cnt">
+					<p><em>王聪的<a href="http://wangcong.org/blog/archives/262">强符号，弱符号</a>。</em></p>
+
+<p>弱符号(weak symbol)是gcc的特性，比如给foo加上__attribute__((weak))，foo实际上可以不存在，这样也不阻止程序正确编译链接。<br/>
+Liquid error: No such file or directory - pygmentize</p>
+
+<p>上面的代码中，在weak_test.c中即使不定义foo，程序也能正确编译链接执行。如果定义了foo，打印“Hello”。</p>
+
+<p>至于linker处理弱符号的细节，没去了解。看起来ld在链接时，会做一个检查，如果没有foo，也不报错。</p>
+
+<hr />
+
+<p>gcc还提供一个特性：weak_alias，它为一个符号定义一个别名，直接看例子：<br/>
+Liquid error: No such file or directory - pygmentize</p>
+
+<p>bar.c中写了两种weak alias的实现，方式一就是glibc的做法，它实际上等价与方式二。<br/>
+在这个例子中，bar是_bar的别名，main里面调用bar的时候，实际上就是调用_bar.<br/>
+weak在这里的含义：bar这个别名是weak symbol，于是可以重新定义bar，就像在weakalias.c中注释的代码那样。</p>
+
+<p>glibc多处用到weak_alias，比如socket函数定义为__socket的别名，weak_alias(__socket, socket)，但__socket几乎是一个空函数，显然不是我们需要的socket函数逻辑。<br/>
+实际的socket函数是以汇编代码的方式，重新定义在glibc/sys-deps/unix/sysv/linux/i386/socket.S中的。</p>
+
+					--EOF--
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://xanpeng.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+	</body>
+</html>
+
