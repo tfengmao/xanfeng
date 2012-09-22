@@ -110,7 +110,7 @@ http://people.freedesktop.org/~dbn/pkg-config-guide.html
 检查之后，就是编译。需要提供Makefile.am，automake据此生成Makefile。  
 
 整体流程是这样的：  
-![](/images/autotools_flow.png)  
+![](/images/autotools_flow.PNG)  
 
 **libtool**  
 
