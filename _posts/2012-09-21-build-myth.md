@@ -1,5 +1,5 @@
 ---
-title: 构建(build)的迷思
+title: 构建的迷思
 layout: post
 category: programming
 tags: build autotools autoconf configure make pkg-config
@@ -12,7 +12,8 @@ autobook我很早就读过，至今仍不理解，真是一份难读的资料。
 1、dwheeler：[Introduction to the Autotools](http://www.dwheeler.com/autotools/)  
 2、[Adventures in Autoconfiscation](http://www.jezuk.co.uk/cgi-bin/view/articles/autoconfiscation-part-one)：Arabica作者的使用心路。  
 3、[Autotools Mythbuster](http://www.flameeyes.eu/autotools-mythbuster/index.html)  
-4、[Building C/C++ libraries with Automake and Autoconf](http://www.openismus.com/documents/linux/building_libraries/building_libraries)
+4、[Building C/C++ libraries with Automake and Autoconf](http://www.openismus.com/documents/linux/building_libraries/building_libraries)  
+5、[autotools tutorial](http://www.lrde.epita.fr/~adl/autotools.html)  
 
 为了跨机器/平台，为了方便，我们亟需自动构建。自动构建非autotools一家，CMake便是时下新宠。但GNU autotools由来已久(autobook成书就是2000年)，不论众说如何纷纭，理解autotools还是必要的。
 
@@ -43,8 +44,7 @@ autoconf提供了一族工具，没必要一一了解，autoreconf就搞定了�
 这两点是根本，其余变化都围绕着两个不变点。  
 同时每个工具都要遵循规则，对应的每个设定文件都需要遵循语法和规则。  
 
-###autoconf、autoscan、pkg-config
-
+**autoconf、autoscan、pkg-config**  
 configure.ac指定如何生成configure文件，指定编译前需要检查哪些东西。  
 推荐写作顺序：  
 {% highlight text %}
@@ -101,12 +101,17 @@ program: byacc          AC_PROG_YACC
 
 configure.ac中更重要的一块是，检查项目依赖的库是否存在。这是通过[AC_CHECK_LIB、AC_SEARCH_LIBS](http://www.gnu.org/software/hello/manual/autoconf/Libraries.html)实现的，不过更好的做法是使用pkg-config.
 
+pkg-config用来找库，系统每安装一个库，如果遵循规则，就会往某处写一个.pc文件，里面包含库信息、库的依赖和库使用指南。pkg-config就是根据这些.pc文件来管理库的，所以这些
 http://blog.csdn.net/absurd/article/details/599813  
 http://www.chenjunlu.com/2011/03/understanding-pkg-config-tool/  
 http://people.freedesktop.org/~dbn/pkg-config-guide.html  
 
-###automake
+**automake**  
+检查之后，就是编译。需要提供Makefile.am，automake据此生成Makefile。  
 
-检查之后，就是编译。  
+整体流程是这样的：  
+![](/images/autotools_flow.png)  
 
-###libtool
+**libtool**  
+
+其他暂时没什么好说的，看个例子吧：https://github.com/jezhiggins/arabica
