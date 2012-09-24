@@ -7,8 +7,7 @@ tags: device map lvm
 
 ###device mapper
 
-*参考：[Linux 内核中的 Device Mapper 机制](http://www.ibm.com/developerworks/cn/linux/l-devmapper/index.html)*
-
+*参考：[Linux 内核中的 Device Mapper 机制](http://www.ibm.com/developerworks/cn/linux/l-devmapper/index.html)*  
 device mapper(下文称为dm)是Linux 2.6内核中支持逻辑卷管理的**通用设备映射机制**。它的构架是这样的：  
 ![](/images/dm_arch.png)
 
@@ -18,7 +17,6 @@ dm在内核中是作为一个块设备驱动被注册的，它有三个重要的
 有两点很特别：  
 - 上层操作的是mapped device。  
 - target device并不一定是真正的物理设备，它可以是另一个mapped device。这样可以构造出多层结构。  
-
 有几处不明白：  
 - 映射表(mapping table)是存在内存中，还是设备里？  
 - 上层IO请求是bio表示的，如果映射方式是mirror(代表一份数据存到多处?)，bio是否需要复制一份？  
@@ -74,16 +72,6 @@ Open count:        0
 Event number:      0
 Major, minor:      253, 1
 Number of targets: 2
-
-Name:              split1
-State:             ACTIVE
-Read Ahead:        1024
-Tables present:    LIVE
-Open count:        0
-Event number:      0
-Major, minor:      253, 4
-Number of targets: 1
-
 ...
 
 # dmsetup status
