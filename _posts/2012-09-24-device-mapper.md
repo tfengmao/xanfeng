@@ -89,5 +89,111 @@ identity: 0 377487360 linear 8:192 0
 split0: 0 188743680 linear 8:192 0
 
 # dmsetup remove /dev/mapper/joined
-
 {% endhighlight %}
+
+###lvm2
+
+参考：[The Linux Logical Volume Manager](http://www.redhat.com/magazine/009jul05/features/lvm2/)、[LVM2 Resource Page](http://sources.redhat.com/lvm2/)、[LVM 2 FAQ](http://tldp.org/HOWTO/LVM-HOWTO/lvm2faq.html#AEN298)。  
+
+lvm2：Linux Logical Volume Manager，version 2。相比lvm1，它有更优的内部设计、更多的功能（volume mirroring and clustering）。  
+lvm是用户态技术，内核里面没有对应的东西。lvm2需要三个东西才能跑起来：内核的device mapper机制、用户态的libdevmapper、用户态的lvm2工具集。  
+
+lvm利用device mapper，做了更细致的逻辑卷管理。它涉及下面的概念：  
+一个physical disk被划分为1～n个physical volumes(**PV**)，组合PVs构建出logical volume groups(**VGs**)，在VG上划分出logical volume(**LV**)。  
+PV由固定大小的physical extents(**PE**)组成，LV也是由固定大小的logical extents(**LE**)组成，PE和LE经常被设置为相同大小值，一般取值4MB。  
+LV的LEs和PEs建立映射关系。映射有多种，比如linear mapping、stripped mapping。不同方式有不同用处，如stripped mapping可用来提供更大的磁盘带宽。  
+
+操作示例：[The Linux Logical Volume Manager](http://www.redhat.com/magazine/009jul05/features/lvm2/)。  
+我不知道lvm是否能直接操作raw disk，RedHat的示例表明是可以的。我操作的示例是fdisk /dev/sdm划分出来的/dev/sdm1～4.  
+{% highlight text %}
+# pvcreate /dev/sdm1 /dev/sdm2 /dev/sdm3 /dev/sdm4
+  No physical volume label read from /dev/sdm1
+  Physical volume "/dev/sdm1" successfully created
+...
+
+# pvdisplay
+  "/dev/sdm1" is a new physical volume of "38.30 GB"
+  --- NEW Physical volume ---
+  PV Name               /dev/sdm1
+  VG Name
+  PV Size               38.30 GB
+  Allocatable           NO
+  PE Size (KByte)       0
+  Total PE              0
+  Free PE               0
+  Allocated PE          0
+  PV UUID               sCesx0-aPRV-j8h2-bkkS-08mC-dgyo-v6tzdC
+...
+
+# vgcreate vg_one /dev/sdm1 /dev/sdm2 /dev/sdm3
+  Volume group "vg_one" successfully created
+
+# vgdisplay		--> 注意PE size、Total PE
+  --- Volume group ---
+  VG Name               vg_one
+  System ID
+  Format                lvm2
+  Metadata Areas        3
+  ...
+  VG Size               114.90 GB
+  PE Size               4.00 MB
+  Total PE              29415
+  Alloc PE / Size       0 / 0
+  Free  PE / Size       29415 / 114.90 GB
+  VG UUID               MlHThr-4KdY-eFof-5D4d-rKkL-yjhw-gNQnT4
+
+# vgextend vg_one /dev/sdm4
+  Volume group "vg_one" successfully extended
+
+# vgdisplay
+...(可看出变化)
+
+# lvcreate -n lvg_one --size 180G vg_one
+  Insufficient free extents (46078) in volume group vg_one: 46080 required	--> 大小检查
+
+# lvcreate -n lvg_one --size 179G vg_one
+  Logical volume "lvg_one" created
+
+# lvremove /dev/mapper/vg_one-lvg_one
+Do you really want to remove active logical volume "lvg_one"? [y/n]: y
+  Logical volume "lvg_one" successfully removed
+
+# lvcreate -n lv_one -l 10000 vg_one
+  Logical volume "lv_one" created
+
+# lvcreate -n lv_two -l 10000 vg_one
+  Logical volume "lv_two" created
+
+# lvdisplay
+...
+# lvextend -l +10000 /dev/mapper/vg_one-lv_one
+  Extending logical volume lv_one to 78.12 GB
+  Logical volume lv_one successfully resized
+# lvdisplay
+...
+
+# ll /dev/mapper/
+total 0
+lrwxrwxrwx 1 root root     16 Sep 21 21:32 control -> ../device-mapper
+brw-r----- 1 root disk 253, 0 Sep 24 17:03 vg_one-lv_one
+brw-r----- 1 root disk 253, 1 Sep 24 17:03 vg_one-lv_two
+
+# ll /dev/disk/by-id		(从输出可以看出使用device mapper的痕迹)
+dm-name-vg_one-lv_one -> ../../dm-0
+dm-name-vg_one-lv_two -> ../../dm-1
+dm-uuid-LVM-MlHThr4KdYeFof5D4drKkLyjhwgNQnT4MFsq9JAUxPQmhL3ivdma9iHY2lCPl4FH -> ../../dm-1
+dm-uuid-LVM-MlHThr4KdYeFof5D4drKkLyjhwgNQnT4TFchVOmdpMLUq9iKV1RHuYi2chTVqerT -> ../../dm-0
+lvm2-pvuuid-QK3862-6xnn-jD0a-A4aS-DEt0-FDgQ-F5bpQ0 -> /dev/sdm4
+lvm2-pvuuid-WdBGXz-svr8-hgXB-eGdn-QAUs-l8IN-uAFv8s -> /dev/sdm2
+lvm2-pvuuid-puPDyK-l1rE-JaoZ-63YM-zUur-caO7-XwUHrZ -> /dev/sdm3
+lvm2-pvuuid-sCesx0-aPRV-j8h2-bkkS-08mC-dgyo-v6tzdC -> /dev/sdm1
+scsi-xxx -> ../../sdm
+scsi-xxx-part1 -> ../../sdm1
+...
+{% endhighlight %}  
+注：lvdisplay并没有看到LE Size。
+
+示意图片(均来自RedHat)：  
+![](/images/lvm_internal.png)  
+![](/images/lvm_extent.png)  
+![](/images/lvm_mapping.png)  
