@@ -93,7 +93,7 @@ split0: 0 188743680 linear 8:192 0
 
 ###lvm2
 
-参考：[The Linux Logical Volume Manager](http://www.redhat.com/magazine/009jul05/features/lvm2/)、[LVM2 Resource Page](http://sources.redhat.com/lvm2/)、[LVM 2 FAQ](http://tldp.org/HOWTO/LVM-HOWTO/lvm2faq.html#AEN298)。  
+参考：[The Linux Logical Volume Manager](http://www.redhat.com/magazine/009jul05/features/lvm2/)、[LVM2 Resource Page](http://sources.redhat.com/lvm2/)、[LVM 2 FAQ](http://tldp.org/HOWTO/LVM-HOWTO/lvm2faq.html#AEN298)、[LVM新手指南-lvm使用入门](http://forum.ubuntu.org.cn/viewtopic.php?f=54&t=254335)。  
 
 lvm2：Linux Logical Volume Manager，version 2。相比lvm1，它有更优的内部设计、更多的功能（volume mirroring and clustering）。  
 lvm是用户态技术，内核里面没有对应的东西。lvm2需要三个东西才能跑起来：内核的device mapper机制、用户态的libdevmapper、用户态的lvm2工具集。  
