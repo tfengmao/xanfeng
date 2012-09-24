@@ -17,7 +17,7 @@ void fun(void) {
     if (foo) foo();
 }
 
-////////////////////////////////////////////
+/*********************************************************/
 // weak_test.c
 // gcc weak_test.c -o weak_test -lfoo
 #include <stdio.h>
@@ -62,7 +62,7 @@ weak_alias(_bar, bar)
 // implementation-2
 // void bar() __attribute__((weak, alias("_bar")));
 
-//////////////////////////////////////////////////////////////////////////////
+/*********************************************************/
 // weakalias.c
 // gcc -Wall weakalias.c -lbar -o weakalias
 #include <stdio.h>
