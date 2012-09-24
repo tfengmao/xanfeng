@@ -197,3 +197,5 @@ scsi-xxx-part1 -> ../../sdm1
 ![](/images/lvm_internal.png)  
 ![](/images/lvm_extent.png)  
 ![](/images/lvm_mapping.png)  
+
+另外有一个CLVM，C表示clusterd，凑巧跟其开发者聊到这个，是用dlm做集群控制的。
