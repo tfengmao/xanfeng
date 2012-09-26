@@ -1,5 +1,5 @@
 ---
-title: debug hacks--debugging skills for application and kernel dev
+title: 内核开发调试技术
 layout: post
 tags: debug hacks kernel gdb kprobe crash assemble
 category: programming
