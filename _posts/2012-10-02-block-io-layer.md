@@ -19,3 +19,11 @@ tags: block io
 block i/o layer大致就是这样，详情细节会有些出入，再议。  
 结合其余的subsystems，会有更多的故事可说。比如buffer_head，比如当我直接访问设备时，一定要经过block i/o layer吗？(应是要的，块设备驱动都用到request等机制了...)一定要经过VFS层吗？不经过的话，会是怎样？
 
+---
+
+一些有意思的点：  
+- the kernel (as with hardware and the sector) needs the block to be a power of two. The kernel also requires that a block be no larger than the page size.  
+- The purpose of a buffer head is to describe this mapping between the on-disk block and the physical in-memory buffer. Acting as a descriptor of this buffer-to-block mapping is the data structure’s only role in the kernel.  
+- Each bio_vec is treated as a vector of the form <page, offset, len>.  
+- The bi_idx field, a more important usage, however, is to allow the splitting of bio structures.With this feature, drivers implementing a Redundant Array of Inexpensive Disks (RAID). All the RAID driver needs to do is copy the bio structure and update the bi_idx field to point to where the individual drive should start its operation. 这条有意思，bi_idx可以用来实现RAID的跨设备卷(?)，在不同的设备中，只要复制bio、设置bi_idx值即可。  
+
