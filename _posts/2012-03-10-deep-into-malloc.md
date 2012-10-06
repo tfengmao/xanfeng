@@ -1,20 +1,20 @@
 ---
-title: 由malloc函数引发的<s>内存"览胜"</s>思考
+title: 由malloc引发的思考
 layout: post
 tags: malloc glibc libc memory allocation kernel ptmalloc heap mmap
 category: linux
 ---
 
-##glibc
+###glibc
 
 linux默认提供了很多库函数，位于"linux libc"中，libc以前曾是glibc的fork版本，但是后来glibc表现的更好，于是linux不再维护自己的libc版本，转而使用FSF的glibc。所以初步确定分析目标为glibc的某个版本。据[wiki](http://en.wikipedia.org/wiki/GNU_C_Library#A_temporary_fork)，glibc 2.x在linux中对应于soname libc.so.6，<del>于是下载glibc 2.14版本</del>。发现代码读起来还是蛮慢的，于是决定参考前人文档(见"更多资料"部分， 下文以**淘宝分析**指代)，于是下载**glibc 2.12.1**。
 
-##man malloc
+###man malloc
 
 <code>man malloc</code>可以得到:  
 malloc()一般从**heap**分配内存，并根据需要使用sbrk(2)调整heap size。但是当分配的内存>MMAP_THRESHOLD字节的时候，malloc()使用mmap(2)创建一个anonymous mapping。MMAP_THRESHOLD默认大小为**128KB**，不过可以通过mallopt(3)调整。
 
-##heap size？
+###heap size？
 
 首先知道malloc()操作的应是虚拟内存了，故而一开始不涉及物理内存的ZONE_HIGHMEM，ZONE_NORMAL，伙伴算法之类的。事实上，真正获取物理内存的工作应是交由**缺页中断**去做了。
 
@@ -23,11 +23,11 @@ malloc()一般从**heap**分配内存，并根据需要使用sbrk(2)调整heap s
 
 *Q：我不知道他如何得到32位机器heap只有1G虚拟地址空间的结论，如果是这样，那么32位的linux机器的malloc最大能分配多少空间呢？*
 
-##mmap的增长方向
+###mmap的增长方向
 
 上面提到，在32位机器上stack向下增长，mmap区域向下增长，heap向上增长。淘宝分析2.1.3提到在64位机器上，stack向下增长，mmap区域向上增长，heap向上增长。
 
-##内存管理概述(淘宝分析3.1.1)
+###内存管理概述(淘宝分析3.1.1)
 
 （1）C风格的内存管理程序  
 C风格的内存管理程序主要实现malloc()和free()函数。内存管理程序主要通过调用brk()或者mmap()进程添加额外的虚拟内存。Doug Lea malloc，ptmalloc，BSD malloc，Hoard，TCMalloc 都属于这一类内存管理程序。  
@@ -40,7 +40,7 @@ C风格的内存管理程序主要实现malloc()和free()函数。内存管理�
 
 淘宝分析3.1.3比较了常见的C内存管理程序，尤其指出glibc内存回收的问题，比如申请一块很大的内存，释放了其中绝大部分，仅一小部分仍被持有，则glibc必须等待这一小部分被释放。
 
-##ptmalloc内存管理概述
+###ptmalloc内存管理概述
 
 linux中malloc的早期版本是由Doug Lea实现的，它有一个重要问题就是在并行处理时多个线程共享进程的内存空间，各线程可能并发请求内存，在这种情况下应该如何保证分配和回收的正确和高效。[Wolfram Gloger](http://www.malloc.de/en/)在Doug Lea的基础上改进使得glibc的malloc可以支持多线程--**ptmalloc**，在glibc-2.3.x.中已经集成了**ptmalloc2**，这就是我们平时使用的malloc，目前ptmalloc的最新版本ptmalloc3。
 
@@ -56,7 +56,7 @@ ptmalloc在设计时折中了高效率，高空间利用率，高可用性等设
 （7）需要保持长期存储的程序不适合用ptmalloc来管理内存。  
 （8）为了支持多线程，多个线程可以从同一个分配区（arena）中分配内存，ptmalloc假设线程A释放掉一块内存后，线程B会申请类似大小的内存，但是A释放的内存跟B需要的内存不一定完全相等，可能有一个小的误差，就需要不停地对内存块作切割和合并，这个过程中可能产生内存碎片。  
 
-##ptmalloc2内存管理数据结构
+###ptmalloc2内存管理数据结构
 
 参见淘宝分析3.2.3。  
 从进程的内存布局可知，.bss段之上的这块分配给用户程序的空间被称为heap（堆）。start_brk指向heap的开始，而brk指向heap的顶部。可以使用系统调用brk()和sbrk()来增加标识heap顶部的 brk 值，从而线性的增加分配给用户的heap空间。在使malloc之前，brk的值等于start_brk，也就是说heap大小为0。ptmalloc在开始时，  
@@ -64,10 +64,10 @@ ptmalloc在设计时折中了高效率，高空间利用率，高可用性等设
 主分配区会调用sbrk()增加一块大小为(128KB+chunk_size) align 4KB的空间作为 heap。非主分配区会调用mmap映射一块大小为HEAP_MAX_SIZE（32位系统上默认为1MB，64位系统上默认为64MB）的空间作为sub-heap。这就是前面所说的ptmalloc所维护的分配空间，当用户请求内存分配时，首先会在这个区域内找一块合适的chunk给用户。当用户释放了heap中的chunk时，ptmalloc又会使用fast bins和bins来组织空闲chunk，以备用户的下一次分配。若需要分配的chunk大小小于mmap分配阈值，而heap空间又不够，则此时主分配区会通过sbrk()调用来增加heap大小，非主分配区会调用mmap映射一块新的sub-heap，也就是增加top chunk的大小，每次heap增加的值都会对齐到 4KB。    
 （2）当用户的请求超过mmap分配阈值，并且主分配区使用sbrk()分配失败的时候，或是非主分配区在top chunk中不能分配到需要的内存时，ptmalloc 会尝试使用mmap()直接映射一块内存到进程内存空间。使用 mmap()直接映射的chunk在释放时直接解除映射，而不再属于进程的内存空间。任何对该内存的访问都会产生段错误。而在heap中或是sub-heap中分配的空间则可能会留在进程内存空间内，还可以再次引用（当然是很危险的）。  
 
-##如此多的内容和细节
+###如此多的内容和细节
 从淘宝分析看出ptmalloc包含了如此多的内容，我的分析初衷是"徒步穿越"从malloc到物理内存分配的路线，以从代码上有个直观的认识；我的分析动力是个人兴趣。但现在看来，这项工作一时完成不了，此时尚有其他紧急任务，不得不*暂停*。
 
-##草草的"总结"
+###草草的"总结"
 
 现在知道，ptmalloc2做了很多细致的工作，以减少系统调用次数，尽量争取更少地进入内核，尽量做到让更多的用户malloc()请求在用户空间得到满足。  
 （1）对于在用户态就能被满足的malloc()请求，意味着ptmalloc管理的内存已经能够满足此次用户请求，无需再从内核"批发"内存。这次分配的这些内存在真正被使用到的时候，再去做"虚拟-物理"地址映射，对应到真正的物理内存。  
@@ -81,7 +81,7 @@ vm_area_struct中包含起止位置值，vm_operations_struct用以指定操作�
 
 程序要使用动态内存，到这一步之后，已建立和虚拟地址空间的关系。而要真正使用物理内存时，牵涉了地址映射，缺页中断处理和物理内存分配，这是linux kernel的工作了，ptmalloc想管也管不了。
 
-##更多问题
+###更多问题
 
 Q：我们知道仅在真正使用内存的时候才分配物理内存，我们也知道32位linux机器的经典虚拟地址空间布局是"用户：内核"="3G：1G"，组合考虑物理内存空间（假设物理内存为2G）和虚拟内存空间这两个因素：  
 （1）如果不实际读写内存，malloc()能**一次性**分配多大的空间？  
@@ -91,5 +91,5 @@ Q：我们知道仅在真正使用内存的时候才分配物理内存，我们�
 64位linux上的代码尝试:
 <script src="https://gist.github.com/2020713.js"> </script>
 
-#更多资料
+###更多资料
 * google发现淘宝的ITer深入分析了glibc的内存管理，他的[博客](http://mqzhuang.iteye.com/blog/1064966)，他的分析文档[(pdf)](http://rdc.taobao.com/blog/cs/wp-content/plugins/glibc%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86ptmalloc%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%904.pdf)
