@@ -1,5 +1,5 @@
 ---
-title: linux 虚拟内存, 地址空间布局, page cache, ...
+title: 虚拟内存，地址空间，page cache
 layout: post
 tags: linux kernel memory cache address page buffer process
 category: linux
@@ -9,7 +9,7 @@ category: linux
 
 我们平时编写程序, 执行程序的时候, 总是会接触到"内存(memory)", "buffer", "cache" 这样的概念, 多少会在英文术语和中文翻译中迷失. 本文尝试建立对这些概念和其原理的初步认识.
 
-#问题
+###问题
 考虑 Linux 操作系统, 假设我们执行程序 /bin/more, 它读取某个大文件, 并"一页一页地"输出到控制台(stdout). 对此, 我有这些疑问:
 
 * more 程序是否有自己的*应用程序缓存(application buffer, user buffer)*, 
@@ -19,7 +19,7 @@ category: linux
 * more 的输出是直接从某内核内存区域输出到 stdout 的吗?
 * more 程序中是否会数据从内核 copy 到 userland? 有 **system buffer** 吗?
 
-#Gustavo Duarte 的博文
+###Gustavo Duarte 的博文
 要解决上面的问题, 不是一件容易的事情, 阅读书籍+源码一定可以做到, 然而定需要花费大量时间. 幸好在 google "page cache" 的时候, 我找到了 **[Gustavo Duarte 的博客](http://duartes.org/gustavo/blog/)**, 他的每一篇文章都是图文并茂, 真正做到了"深入浅出"的讲解, 强烈推荐阅读!  
 和本文关注点"内存"相关的一系列文章如下, 本文"严重"参考了这个系列:
 
@@ -29,7 +29,7 @@ category: linux
 4. [Page Cache, the Affair Between Memory and Files](http://duartes.org/gustavo/blog/post/page-cache-the-affair-between-memory-and-files)
 
   
-#Anatomy of a Program in Memory
+###Anatomy of a Program in Memory
 OS不让你直面物理内存, 它提供了 virtual memory 层. **virtual address** 和物理内存通过 **page table**(由 kernel 管理) 相联系. 每一个进程都有自己独立的 **virtual memory space**, 在32位系统中, 大小为 4G. 在 linux 和 windows 系统中, 内核进程和用户进程所占的 virtual memory 比例分别是 1:3 和 2:2. (windows 经过配置也可以为 1:3.)
 
 ![alt user/kernel memory split](http://static.duartes.org/img/blogPosts/kernelUserMemorySplit.png)
@@ -51,7 +51,7 @@ Linux 中一个进程在虚拟内存中的经典布局为:
 * data segment: 存储初始化过的 static 变量和全局变量. 这块内存不是 anonymous 的, 它映射到程序二进制镜像的对应部分. 同时, 它是 private memory mapping 的, 意味着其变更不反应到硬盘文件.
 * text segment: 只读区域, 映射程序的二进制镜像文件.
 
-#How The Kernel Manages Your Memory
+###How The Kernel Manages Your Memory
 了解了进程的虚拟地址空间内存布局之后, 我们来看看操作系统如何来管理内存.
 
 Linux 中进程是 task_struct 结构的实例, 这个结构包含 struct mm_struct *mm 指针, 它管理上文提及的内存布局.
@@ -92,7 +92,7 @@ cat /proc/pid_of_process/maps 则仅简单遍历该链表.
     7fffba7ff000-7fffba800000 r-xp 00000000 00:00 0                          [vdso]
     ffffffffff600000-ffffffffff601000 r-xp 00000000 00:00 0                  [vsyscall]
 
-##memory pages
+###memory pages
 现在迎来另一个概念 "memory page".  
 4GB 的虚拟地址空间被划分为 pages, 32 位的 x86 处理器支持 4KB, 2MB 和 4MB 的页大小. 一般 Linux 和 Windows 对于用户部分的虚拟地址空间都使用 4KB 的页大小, 则 3GB 的用户空间对应的页为:  
 ![alt 3GB virtual user space](http://static.duartes.org/img/blogPosts/pagedVirtualSpace.png)
@@ -108,7 +108,7 @@ Linux 中 page frame 由 struct page 描述, 其中包含很多标志变量, 用
 从虚拟内存到物理内存的映射, 可以由下面的简图展示:  
 ![virtual memory to physical memory](http://static.duartes.org/img/blogPosts/heapMapped.png)
 
-#Page Cache, the Affair Between Memory and Files
+###Page Cache, the Affair Between Memory and Files
 OS 处理文件的时候面对两大难题: 1) 访问硬盘很慢; 2) the need to load file contents in physical memory once and share the contents among programs.  
 page cache 机制用以解决这两个问题. 假设有一个程序 render 需要打开文件 scene.data, 并一次读取 512 bytes. kernel 处理流程图示:  
 ![alt render program to read file](http://static.duartes.org/img/blogPosts/readFromPageCache.png)
@@ -121,7 +121,7 @@ page cache 机制用以解决这两个问题. 假设有一个程序 render 需�
 
 当使用 file mapping 时, kernel 将程序的 virtual pages 直接映射到 page cache. file mapping 可以是 private 或 shared 的.
 
-#解答问题
+###解答问题
 回到本文开始的问题:
 
 * more 程序是否有自己的*应用程序缓存(application buffer, user buffer)*
