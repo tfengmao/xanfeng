@@ -26,6 +26,17 @@ tags: access device driver vfs
 打算使用systemtap跟踪drivers/block/loop.c时发现，stap应该是通过/boot/System.map找到symbol的，但是loop.c属于loop模块，其symbols没有被编进System.map，所以不能这样：probe kernel.function("...")。fs/ext3也是以模块的方式编译的，也不能直接这么使用。——这是一个麻烦。  
 要使用另外一种方式：probe module("...").xxx("...")。但操作时遇到这样的错误：“WARNING: cannot find module ext3 debuginfo: No DWARF information found”。——看起来CONFIG_DEBUG_INFO没能为模块生成额外的信息(什么信息?...)。  
 看起来要打开-g编译选项，不知道是否有对应的BUILD OPTION，不过找到其他两个方法：make CFLAGS='-g'，直接修改顶层Makefile的CFLAGS_KERNEL和CFLAGS。  
+重新编译安装之后(debian's way)，发现仍然是同样的warning，百思不得其解。最后使用readelf和objdump查看系统的loop.ko，发现真的没有DWARF info，但是编译过的源码目录下的loop.ko是又DWARF info的，不知道为什么。把源码目录下的loop.ko拷贝至/lib/modules，就可以用了。  
+
+我用的stap脚本：  
+{% highlight text %}
+probe module("loop").function("*") {
+    printf ("%s -> %s\n", thread_indent(1), probefunc())
+    /* print_backtrace() */
+}
+{% endhighlight %}
+
+因为使用了loop_thread，函数调用路径被打乱，print_backtrace()得不到上层更多的调用关系，输出的信息基本上是loop.c里面的函数调用轨迹，不能用来证明猜想，留待以后了。不过我相信这就是直接设备访问了。
 
 systemtap的资料网上会有很多，给出两个：http://sourceware.org/systemtap/tutorial/tutorial.html，http://linux.die.net/man/5/stapprobes.
 
