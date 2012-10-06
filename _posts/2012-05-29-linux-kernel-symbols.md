@@ -1,5 +1,5 @@
 ---
-title: Linux kernel symbols
+title: 内核符号表
 layout: post
 tags: linux kernel symbol module
 category: linux
@@ -16,9 +16,7 @@ category: linux
 2. mymod 在编译的时候, 引入某种和内核相关的 version 信息, 安装时该信息和当前内核不匹配, 于是"disagrees about version..."  
 3. 依照"[.so, elf & symbols](http://xanpeng.github.com/2012/05/21/solib-elf-symbol/)"的经验, 内核在某处放置有所有 symbols. "Unknown symbol" 就是指在"某处"找不到该 symbol.  
 
----
-
-#kernel symbols
+###kernel symbols
 
 编译并安装新内核之后, 在/boot目录下面会有文件 "System.map-版本号", 这里面放置了全局的 symbols, 包含函数和变量. 通过 `file` 命令可以看出这是一个 ASCII text 文件.  
 以 printk() 和 jiffies 为例, 查看对应的 entry:
@@ -48,9 +46,7 @@ category: linux
 称 System.map 为 kernel symbol table(kst). kst 包含 kernel image 所有的 symbols, 在 kernel space 中是全局可见的.  
 所以, 我们自己编写的测试模块 mymod 也可以使用其中的函数, 如 printk.  
 
----
-
-#EXPORT_SYMBOL & EXPORT_SYMBOL_GPL
+###EXPORT_SYMBOL & EXPORT_SYMBOL_GPL
 
 在 modprobe mymod 的时候, mymod 中定义的全局变量是否会被加入到 kst 中?  
 答案是不会. 模块中定义的变量的能见度局限于模块内部, 除非作者显式地 export.
@@ -123,9 +119,7 @@ insmod mymod 之后, 想从 System.map 中看到 my_func 是不可能的. 因为
     ffffffffa05e4000 t my_func	[mymod]
     root@lab# 
 
----
-
-#version disagreement
+###version disagreement
 
 回顾文首提出的两个问题, "disagrees about version of symbol module_layout" 和 "Unknown symbol...", 到这里我们发现, 我们已经可以解释"Unknown symbol", 还不能解释"disagrees about version".
 
@@ -144,8 +138,7 @@ insmod mymod 之后, 想从 System.map 中看到 my_func 是不可能的. 因为
 
 搜索了很久, 未能解决这个问题. 难道只有保证所使用的 kernel 版本一致才行? 甚至保证所使用的编译器也要一致?
 
-##versioning
-
+**versioning**  
 "[Loadable Modules & the Linux 2.6 Kernel](http://www.drdobbs.com/open-source/184406112?pgno=1)" 的 "Module Versioning" 部分讲到:
 
 > The 2.6 module loader implements strict version checking, relying on "version magic" strings ("vermagics"), which are included both in the kernel and in each module at build time. A vermagic, which could look like "2.6.5-1.358 686 REGPARM 4KSTACKS gcc-3.3," contains critical information (for example, an extended kernel version identifier, the target architecture, compilation options, and compiler version) and guarantees compatibility between the kernel and a module. The module loader compares the module's and kernel's vermagics character-for-character, and refuses to load the module if differences are detected.
@@ -155,22 +148,19 @@ insmod mymod 之后, 想从 System.map 中看到 my_func 是不可能的. 因为
 
 但仍解决不了疑问, 还带来了新问题: 什么时候可以安全地使用 modprobe -f?
 
-##what does the book say
-
+**what does the book say**  
 实际上, 关键在于你的模块使用的函数必须要能在当前的 kernel image 里面找到.  
 "[Linux Loadable Kernel Module HOWTO](http://tldp.org/HOWTO/Module-HOWTO/index.html)"的"[6.2. An LKM Must Match The Base Kernel](http://tldp.org/HOWTO/Module-HOWTO/basekerncompat.html#AEN507)" 给出了设计 vermagic/.modinfo 的初衷, 就是为了应对场景: kernel 版本变迁, 引起某些 API 的变迁, 从而使旧模块在新的内核中行为出错.  
 文章还提出, 有时, 开发者知道模块使用的 API 基本不会变动, 此时就没有必要为每一个内核去编译对应的模块了. 所以, insmod 提供了 "-f" 参数.  
 文章还提到了 "CONFIG_MODVERSIONS", 但是我不愿去细究了.
 
-##version disagreement 总结
-
+**version disagreement 总结**  
 1. 发生 version disagreement 的原因, 一般是在 kernel-A 编译, 去 kernel-B 安装. 实际上, 使用 `modprobe` 时, 它会选择正确的目录, 所以发生错误的话, 往往是因为我们手工替换了对应目录下的 .ko 文件.  
 2. 如果你确保尽管 kernel-A, kernel-B 不同, 但也大同小异, 至少模块使用的 API 无变化, 那么可以使用 "--force" 选项, 主动取消 version 检查.  
 3. 如果不能确保 API 一致, 还要使用 "--force", 那么就要承担 kernel crash 的风险. 实际上, 我遇到的 kernel crash 的情况就是因为在当前的 System.map 中根本找不到某 API.  
 4. insmod 获得的信息优于 modprobe. 不解释+不深究!  
 
-##try to hack!
-
+**try to hack**  
 假设 mymod.ko 在 kernel-A 下被编译, 当前处于 kernel-B, 那么是否可以:  
 1. insmod -f ./mymod.ko 使安装成功?  
 2. modprobe -f mymod 使安装成功?  
@@ -184,9 +174,6 @@ insmod mymod 之后, 想从 System.map 中看到 my_func 是不可能的. 因为
 
 sigh...肯定有更多的细节为我不知...而这个细节并没有作为较重要的主题呈现在书籍中...我不去看了, 已花大量时间...挂念于心中及此处吧...
 
----
-
-#reference
-
+###reference
 [Introducing Linux Kernel Symbols](http://onebitbug.me/introducing-linux-kernel-symbols)  
 [Kernel Symbol Table and exporting symbol](http://www.learninglinuxkernel.com/Linux_Kernel_Module_Programming_03.html)  
