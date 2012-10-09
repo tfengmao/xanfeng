@@ -90,5 +90,6 @@ http://linux-mm.org/VirtualMemory
 http://stackoverflow.com/questions/5272408/does-linux-use-self-map-for-page-directory-and-page-tables  
 http://www.stanford.edu/~stinson/paper_notes/fundamental/mem_mgmt/ia32_pts.txt  
 http://stackoverflow.com/questions/10880555/how-does-the-system-choose-the-right-page-table  
+http://www.thehackademy.net/madchat/ebooks/Mem_virtuelle/linux-mm/vmoutline.html  
 
 有新的认识之后再更新本文。
