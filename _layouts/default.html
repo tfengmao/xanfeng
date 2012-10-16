@@ -16,7 +16,7 @@
 							<a href="/">ARTICLES</a>
 							<ul>
 								{% for category in site.categories %}
-                                <li><a href="/{{ category[0] | downcase }}.html">{{ category[0] }}({{ category | last | size }})</a></li>
+								<li><a href="/{{ category[0] | downcase }}.html">{{ category[0] }}({{ category | last | size }})</a></li>
 								{% endfor %}
 							</ul>
 						</li>
