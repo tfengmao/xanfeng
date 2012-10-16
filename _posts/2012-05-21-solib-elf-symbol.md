@@ -1,5 +1,5 @@
 ---
-title: .so, elf & symbols
+title: 动态连接库和符号
 layout: post
 tags: so library shared symbols elf ldconfig
 category: linux
