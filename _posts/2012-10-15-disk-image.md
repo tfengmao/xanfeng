@@ -44,7 +44,7 @@ tags: disk image virtual
 Raw格式是指“没有格式”...“原来怎样，我就怎样”，dd出来的就是Raw格式。  
 出现其它各种格式，就是因为Raw“太低端”，不能支持高级特性，比如加密、快照、链接克隆、瘦分配等。  
 
-[VHD](http://en.wikipedia.org/wiki/VHD_(file_format))格式现在属于Microsoft所有，但其format specification是公开的。  
+[VHD](http://en.wikipedia.org/wiki/VHD_\(file_format\))格式现在属于Microsoft所有，但其format specification是公开的。  
 它有3种子格式：  
 1、Fixed格式。建立时就固定大小了。  
 2、Dynamic格式。建立时是某个大小，比如2G，使用过程中可以动态增长，比如增长到128G。  
