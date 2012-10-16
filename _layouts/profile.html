@@ -13,7 +13,7 @@
 				<div id="sidebar">
 					<ul>
 						<li>
-							<a href="/">ARTICLES</a>
+							<a href="/index.html">ARTICLES</a>
 							<ul>
 								{% for category in site.categories %}
                                 <li><a href="/{{ category[0] | downcase }}.html">{{ category[0] }}({{ category | last | size }})</a></li>
