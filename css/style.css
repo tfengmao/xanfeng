@@ -38,7 +38,7 @@ body {
 	-moz-background-size:100% auto;
 	background-attachment:fixed;
 	background: #666 url(../images/bg.png);
-	background-position:center center;
+	background-position:center top;
 	/*font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;*/
 	font-family:"Electrolize",sans-serif;
 }
