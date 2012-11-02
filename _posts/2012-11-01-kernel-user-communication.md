@@ -103,6 +103,29 @@ holders/  initstate  notes/  parameters/  refcnt  sections/  srcversion  support
 【5】字符设备  
 用的很多，用的很广泛。创建一个字符设备（比如通过mknod），为其编写驱动（char device driver），设定如何接收和发送数据。
 
+例子：[char-dev-driver.c](https://github.com/xanpeng/kernel-communication/blob/master/char-dev-driver.c)  
+{% highlight text %}
+# insmod ./char-dev-driver.ko
+# dmesg
+cdev example: assigned major: 248
+create node with mknod /dev/cdev_example c 248 0
+
+# mknod /dev/cdev_example c 248 0
+# echo "hello kernel" > /dev/cdev_example
+// 这个例子很简单，用户态传字符串到内核，
+// 内核将字符串放到内核态的内存中，
+// 用户读取字符设备时，内核将缓存的字符串发到用户空间
+# cat /dev/cdev_example	
+hello kernel
+
+# rmmod char-dev-driver
+# cat /dev/cdev_example
+cat: /dev/cdev_example: No such device or address
+# echo "hello kernel" > /dev/cdev_example
+An error occurred while redirecting file '/dev/cdev_example'
+open: No such device or address
+{% endhighlight %}
+
 【6】socket方案之netlink  
 优点：  
 
@@ -117,7 +140,8 @@ holders/  initstate  notes/  parameters/  refcnt  sections/  srcversion  support
 - Each entity using netlink sockets has to **define its own protocol type** (family) in the kernel header file include/linux/netlink.h, necessiating a kernel **re-compilation** before it can be used.
 - The maximum number of netlink families is fixed to 32. If everyone registers its own protocol this number will be exhausted.
 
-所以一般使用“Generic Netlink Family”。实现分用户态和内核态两端，在[kernel-communication](https://github.com/xanpeng/kernel-communication)下面有示例。gnkernel.c是内核模块代码，gnuser.c是用户态代码。其中gnuser.c没有使用libnl或者libnetlink库，而是使用低端API，这在实际编程中是不推荐的。  
+所以一般使用“Generic Netlink Family”。  
+实现分用户态和内核态两端，在[kernel-communication](https://github.com/xanpeng/kernel-communication)下面有示例。gnkernel.c是内核模块代码，gnuser.c是用户态代码。其中gnuser.c没有使用libnl或者libnetlink库，而是使用低端API，这在实际编程中是不推荐的。  
 运行效果如下：  
 {% highlight text %}
 # insmod ./gnkernel.ko
@@ -141,4 +165,73 @@ received error
 error received NACK - leaving
 {% endhighlight %}
 
+【7】socket方案之UDP Sockets  
 
+【8】ioctl  
+前面描述的file-based通信机制除了read、write函数之外，还有一种通信方法：ioctl。  
+ioctl是一个系统调用，有三个参数：fd（file或socket）、一个数字（用以指定命令）和一个数据参数。  
+内核对ioctl的实现很简单：根据指定命令的那个数，来一个switch...  
+理论上你可以随意指定这个数字，只要别和已有的冲突就行，但是最好还是指定一个系统范围内唯一的值。更多看documentation/ioctl-number.txt。  
+
+ioctl命令一般有这几种类型：  
+1、不请求任何数据。  
+2、要写一些数据到内核。  
+3、要从内核读一些数据。  
+4、内核模块读数据参数，然后往其中放入新数据，以返回到用户态。  
+
+例子（在前面字符设备的例子上加了个ioctl实现）：[ioctl-kernel-side.c](https://github.com/xanpeng/kernel-communication/blob/master/ioctl-kernel-side.c)、[ioctl-user-side.c](https://github.com/xanpeng/kernel-communication/blob/master/ioctl-user-side.c)  
+使用方法：ioctl没有对应的命令，所以需要编程调用ioctl()。
+
+【9】系统调用  
+系统调用当然是方式之一，别“见多不怪”。
+
+【10】内核向用户态发送Signals  
+这个方式比较特别。内核向用户进程发送Signal，用户进程事先已经注册了signal handler，收到signal时，处理函数被触发，一次通信完成。  
+同时，signal分normal signals和realtimesignals：  
+> There are two types of signal APIs in user space: "normal" signals which **do not have any data**, and "realtime" signals which **carry 32 bits of data**.   
+> The main difference between them is that real time signals are queued, whereas normal signals are not.   
+> This means that if more than one normal signal is sent to a process before it is able to process it, it receives this signal only once, whereas he receives all real time signals.
+
+用户态无法向内核发送signal，从而达到通信目的？
+
+例子：[signal-kernel-side.c](https://github.com/xanpeng/kernel-communication/blob/master/signal-kernel-side.c)，[signal-user-side.c](https://github.com/xanpeng/kernel-communication/blob/master/signal-user-side.c)。  
+
+{% highlight text %}
+# insmod ./signal-kernel-side.ko
+
+# ./signal-user-side
+received value 1234
+# dmesg
+kernel: [  456.347694] pid = 13350
+
+# ./signal-user-side
+received value 1234
+# dmesg
+kernel: [  480.139807] pid = 13668
+{% endhighlight %}
+
+【11】upcall  
+内核模块调用用户态的函数，核心是内核提供了相关辅助函数：  
+`static inline int call_usermodehelper(char *path, char **argv, char **envp, enum umh_wait wait)`  
+例子：[upcall-kernel-side.c](https://github.com/xanpeng/kernel-communication/blob/master/upcall-kernel-side.c)，[upcall-user-prog.c](https://github.com/xanpeng/kernel-communication/blob/master/upcall-user-prog.c)。
+
+【12】mmap  
+没想到mmap居然也是，难道是指匿名映射吗？  
+内存映射是唯一的一种无需拷贝的kernel<->user通信方法，处理大量数据时也是最快的方法。  
+不过有个“**缺点**”：用户进程把数据放到共享内存中时，内核不能“自动”知道有新数据；同样，内核将数据放到共享内存中时，用户进程也不会得到通知。  
+这个“缺点”使得一般mmap是与其他通信方式共同使用的，用mmap传数据，用其他方式传命令。  
+
+例子：[mmap-kernel-side.c](https://github.com/xanpeng/kernel-communication/blob/master/mmap-kernel-side.c)，[mmap-user-side.c](https://github.com/xanpeng/kernel-communication/blob/master/mmap-user-side.c)。  
+在这个例子中，内核模块利用debugfs，将内存区域关联到debugfs中的文件，使得用户态进程可以通过fd去访问共享内存。  
+这个例子和正常的mmap申请内存有所不同。可参考“[由mmap引发的SIGBUS](http://hi.baidu.com/_kouu/item/99690a0eae8568036c9048d0)”。  
+正常的mmap并不真正分配内存，只是分配vma，做一些标记，等到真正访问时，发生page fault，触发vm_operations_struct.fault，再真正分配内存。  
+而这个例子是内存事先分配好（一页），但是还是要走fault流程，执行fault函数，不过fault函数跟其他的函数就完全不同的，只要把实现分配好的页赋给vm_fault.page就可以了：vmf->page = virt_to_page(info->data);  
+
+效果：  
+{% highlight text %}
+# insmod ./mmap-kernel-side.ko
+// 用户程序先读，再写
+# ./mmap-user-side
+initial message: hello from kernel this is file: mmap_example
+changed message: hello from *user* this is file: mmap_example
+{% endhighlight %}
