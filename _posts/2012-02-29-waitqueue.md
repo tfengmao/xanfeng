@@ -30,8 +30,8 @@ struct __wait_queue {
 {% endhighlight %}
 
 可以通过add_wait_queue将一个wait_queue_t加到wait_queue_head_t中（实际是链表操作而已）。  
-wait_queue_t.private关联进程，我们一般使用时，关联的多是当前进程current。  
-使用完之后，需要通过某种方式将wait_queue从wait_queue_head_t中移出。  
+wait_queue_t.private关联进程，我们一般使用时，关联的多是当前进程current。比如下面示例中的wait_event_timeout，就是把当前进程关联到wait_queue_head_t中（通过DEFINE_WAIT）。  
+使用完之后，需要通过某种方式将wait_queue从wait_queue_head_t中移出。不过大多时候，这都自动被做了，比如wait_event_timeout在内部的finish_wait就会做链表移出动作。  
 
 ###使用和示例
 
