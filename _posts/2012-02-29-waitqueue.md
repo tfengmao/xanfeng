@@ -5,11 +5,11 @@ tags: linux waitqueue schedule kernel
 category: linux
 ---
 
-##什么是waitqueue
+###什么是waitqueue
 
 > Wait queues are used to enable processes to wait for a particular event to occur without the need for constant **polling**. Processes sleep during wait time and are woken up automatically by the kernel when the event takes place. 
 
-##数据结构
+###数据结构
 
 {% highlight c %}
 struct __wait_queue_head {
@@ -33,7 +33,7 @@ struct __wait_queue {
 wait_queue_t.private关联进程，我们一般使用时，关联的多是当前进程current。  
 使用完之后，需要通过某种方式将wait_queue从wait_queue_head_t中移出。  
 
-##使用和示例
+###使用和示例
 
 使用waitqueue:  
 1、调用wait_event之类的函数将当前进程加入waitqueue，使其睡眠，并将控制权交给scheduler。  
@@ -85,7 +85,7 @@ after wake_up()
 *******/
 {% endhighlight %}
 
-##FAQ
+###FAQ
 
 Q：waitqueue中的进程被唤醒后，是否会被移出waitqueue？  
 A：使用DEFINE_WAIT定义的waitqueue entry，其wake_func_queue_t为autoremove_wake_function, 该函数wakeup进程之后，会将进程从队列中移除。  
@@ -100,5 +100,5 @@ int autoremove_wake_function(wait_queue_t *wait, unsigned mode, int sync, void *
 }
 {% endhighlight %}
 
-##参考资料
+###参考资料
 1、professional linux kernel architecture, 14.4 "wait queues and completions".  
