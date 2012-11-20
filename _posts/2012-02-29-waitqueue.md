@@ -1,79 +1,104 @@
 ---
-title: linux 等待队列(wait queue)
+title: 等待队列waitqueue
 layout: post
 tags: linux waitqueue schedule kernel
 category: linux
 ---
 
-#什么是 wait queue
+##什么是waitqueue
+
 > Wait queues are used to enable processes to wait for a particular event to occur without the need for constant **polling**. Processes sleep during wait time and are woken up automatically by the kernel when the event takes place. 
 
-#数据结构
-**wait queue 数据结构**  
-    struct __wait_queue_head {
-        spinlock_t lock;
-        struct list_head task_list;
-    };
-    typedef struct __wait_queue_head wait_queue_head_t;
+##数据结构
 
-**wait queue entry 数据结构**  
-    typedef struct __wait_queue wait_queue_t;
-    typedef int (*wait_queue_func_t)(wait_queue_t *wait, unsigned mode, int flags, void *key);
-    struct __wait_queue {
-        unsigned int flags; // WQ_FLAG_EXCLUSIVE: be woken up exclusively.
-    #define WQ_FLAG_EXCLUSIVE	0x01
-        void *private;
-        wait_queue_func_t func;
-        struct list_head task_list;
-    };
+{% highlight c %}
+struct __wait_queue_head {
+    spinlock_t lock;
+    struct list_head task_list;
+};
+typedef struct __wait_queue_head wait_queue_head_t;
 
-#函数
-使用 wait queue:
+typedef struct __wait_queue wait_queue_t;
+typedef int (*wait_queue_func_t)(wait_queue_t *wait, unsigned mode, int flags, void *key);
+struct __wait_queue {
+    unsigned int flags; // WQ_FLAG_EXCLUSIVE: be woken up exclusively.
+#define WQ_FLAG_EXCLUSIVE	0x01
+    void *private;
+    wait_queue_func_t func;
+    struct list_head task_list;
+};
+{% endhighlight %}
 
-1. 调用 wait_event 之类的函数将当前进程加入 wait queue, 使其睡眠, 并将控制权交给调度器.
-2. 在其他地方调用 wake_up 之类的函数唤醒在 wait queue 中睡眠的进程. 需注意一点:
+可以通过add_wait_queue将一个wait_queue_t加到wait_queue_head_t中（实际是链表操作而已）。  
+wait_queue_t.private关联进程，我们一般使用时，关联的多是当前进程current。  
+使用完之后，需要通过某种方式将wait_queue从wait_queue_head_t中移出。  
+
+##使用和示例
+
+使用waitqueue:  
+1、调用wait_event之类的函数将当前进程加入waitqueue，使其睡眠，并将控制权交给scheduler。  
+2、在其他地方调用wake_up之类的函数唤醒在waitqueue中睡眠的进程。需注意一点：  
 > When process are put to sleep using **wait_event**, you must always ensure that there is a corresponding **wake_up** call at another point in the kernel.
 
-初始化 wait queue 和 wait queue entry:
-    #define init_waitqueue_head(q)
-    void init_waitqueue_entry(wait_queue_t *q, struct task_struct *p);
-    #define DEFINE_WAIT(name) DEFINE_WAIT_FUNC(name, autoremove_wake_function)
+{% highlight c %}
+#include <linux/wait.h>
+#include <linux/module.h>
+#include <linux/init.h>
+#include <linux/sched.h>
+#include <linux/time.h>
 
-**wait_event 家族**  
-    #define wait_event(wq, condition)
-    void add_wait_queue(wait_queue_head_t *q, wait_queue_t *wait);
-    void prepare_to_wait(wait_queue_head_t *q, wait_queue_t *wait, int state);
-    void prepare_to_wait_exclusive(wait_queue_head_t *q, wait_queue_t *wait, int state);
-    #define wait_event_interruptible(wq, condition) // 睡眠的进程可以被信号唤醒
-    #define wait_event_timeout(wq, condition, timeout) // 条件满足, 或超时的时候, 进程被唤醒
-    #define wait_event_interruptible_timeout(wq, condition, timeout) // 条件满足/超时/收到信号的时候进程被唤醒
+static DECLARE_WAIT_QUEUE_HEAD(exampleq);
 
-**wake_up 家族**  
-    #define wake_up(x)			__wake_up(x, TASK_NORMAL, 1, NULL)
-    #define wake_up_nr(x, nr)		__wake_up(x, TASK_NORMAL, nr, NULL)
-    #define wake_up_all(x)			__wake_up(x, TASK_NORMAL, 0, NULL)
-    #define wake_up_locked(x)		__wake_up_locked((x), TASK_NORMAL)
-    #define wake_up_interruptible(x)	__wake_up(x, TASK_INTERRUPTIBLE, 1, NULL)
-    #define wake_up_interruptible_nr(x, nr)	__wake_up(x, TASK_INTERRUPTIBLE, nr, NULL)
-    #define wake_up_interruptible_all(x)	__wake_up(x, TASK_INTERRUPTIBLE, 0, NULL)
-    #define wake_up_interruptible_sync(x)	__wake_up_sync((x), TASK_INTERRUPTIBLE, 1)
-
-#sample code
-注意: 该示例代码是**"恶意"**的, 它让你卡在 insmod.
-<script src="https://gist.github.com/1940201.js"> </script>
-
-#FAQ
-Q: wait queue 中的进程被唤醒后, 是否会被移出 wait queue?  
-A: 使用 DEFINE_WAIT 定义的 wait queue entry, 其 wake_func_queue_t 为 autoremove_wake_function, 该函数 wakeup 进程之后, 会将进程从队列中移除.
-    int autoremove_wake_function(wait_queue_t *wait, unsigned mode, int sync, void *key)
+static void wait_func(void)
+{
+    if (! wait_event_timeout(exampleq, 0, msecs_to_jiffies(10000)))
     {
-        int ret = default_wake_function(wait, mode, sync, key);
-
-        if (ret)
-            list_del_init(&wait->task_list);
-        return ret;
+        printk("exampleq: woken up by timeout or wake_up()\n");
     }
+}
 
-#参考资料
-* professional linux kernel architecture, 14.4 "wait queues and completions".
+static int __init waitq_test_init(void)
+{
+    printk("before wait_func()\n");
+    wait_func();
 
+    printk("after wait_func() and before wake_up()\n");
+    wake_up(&exampleq);
+
+    printk("after wake_up()\n");
+    return 0;
+}
+
+static void __exit waitq_test_exit(void)
+{
+}
+
+MODULE_LICENSE("GPL");
+module_init(waitq_test_init);
+module_exit(waitq_test_exit);
+
+/*******
+before wait_func()
+exampleq: woken up by timeout or wake_up()
+after wait_func() and before wake_up()
+after wake_up()
+*******/
+{% endhighlight %}
+
+##FAQ
+
+Q：waitqueue中的进程被唤醒后，是否会被移出waitqueue？  
+A：使用DEFINE_WAIT定义的waitqueue entry，其wake_func_queue_t为autoremove_wake_function, 该函数wakeup进程之后，会将进程从队列中移除。  
+{% highlight c %}
+int autoremove_wake_function(wait_queue_t *wait, unsigned mode, int sync, void *key)
+{
+    int ret = default_wake_function(wait, mode, sync, key);
+
+    if (ret)
+        list_del_init(&wait->task_list);
+    return ret;
+}
+{% endhighlight %}
+
+##参考资料
+1、professional linux kernel architecture, 14.4 "wait queues and completions".  
