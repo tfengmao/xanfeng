@@ -1,7 +1,7 @@
 ---
 title: 理解C++异常处理
 layout: post
-category: programming
+category: coding
 tags: cpp exception handle
 ---
 

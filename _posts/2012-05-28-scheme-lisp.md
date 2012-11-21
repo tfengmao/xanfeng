@@ -2,7 +2,7 @@
 title: Scheme/Lisp做什么
 layout: post
 tags: scheme lisp language
-category: programming
+category: coding
 ---
 
 王垠在"[初学者程序语言的选择](http://blog.sina.com.cn/s/blog_5d90e82f01015271.html)"中向初学者推荐 [schemer](http://www.schemers.org/)(*就是scheme, 之所以去掉'r', 是因为某编辑器/编译器曾经存在的字符长度限制*), 我好奇为什么不推荐c?   

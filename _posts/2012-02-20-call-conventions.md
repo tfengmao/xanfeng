@@ -2,7 +2,7 @@
 title: c/c++ calling conventions
 layout: post
 tags: cdecl stdcall convention
-category: programming
+category: coding
 ---
 
 cdecl: 函数参数压栈顺序 "从右到左", 调用者负责清理堆栈.  

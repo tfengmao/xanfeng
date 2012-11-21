@@ -2,7 +2,7 @@
 title: abi of compiler
 layout: post
 tags: abi compiler cpp
-category: programming
+category: coding
 ---
 
 *2012-06-30 更新*

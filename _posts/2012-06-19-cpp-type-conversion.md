@@ -2,7 +2,7 @@
 title: c++ type conversion/casting
 layout: post
 tags: type c++ conversion cast
-category: programming
+category: coding
 ---
 
 *md, 不写c++代码很多年了, 所以, 谨慎对待本文所说, 你懂的*.  

@@ -2,7 +2,7 @@
 title: memory allocation in c++
 layout: post
 tags: memory allocation cpp new allocator operator placement delete override
-category: programming
+category: coding
 ---
 
 *2012-06-29 更新.*

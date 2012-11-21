@@ -1,7 +1,7 @@
 ---
 title: C语言函数原型的重要性
 layout: post
-category: programming
+category: coding
 tags: function prototype c
 ---
 

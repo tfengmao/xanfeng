@@ -1,7 +1,7 @@
 ---
 title: 虚拟化、云计算、开放源代码及其他
 layout: post
-category: programming
+category: coding
 tags: virtualization cloud compute vmware xen
 ---
 

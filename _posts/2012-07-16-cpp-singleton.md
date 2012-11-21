@@ -1,7 +1,7 @@
 ---
 title: C++实现线程安全的Singleton
 layout: post
-category: programming
+category: coding
 tags: cpp singleton thread
 ---
 

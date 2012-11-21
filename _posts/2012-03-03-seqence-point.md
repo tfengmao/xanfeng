@@ -2,7 +2,7 @@
 title: sequence point
 layout: post
 tags: c c++ undefined_behaviour sequence_point
-category: programming
+category: coding
 ---
 
 [sequence point](http://en.wikipedia.org/wiki/Sequence_point)就像是程序语句执行的barrier一样,执行到sequence point的时候,之前的语句的所有side effect都已经执行过了.根据sequence point可以确定程序某些语句的执行顺序,不能根据sequence point确定顺序的语句,其执行的效果就可能是未定的了.  

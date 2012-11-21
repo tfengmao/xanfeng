@@ -2,7 +2,7 @@
 title: boost in muduo
 layout: post
 tags: boost muduo cpp
-category: programming
+category: coding
 ---
 
 本次借了解"[muduo's c++ high-perf logging](http://xanpeng.github.com/2012/06/18/muduo-logging/)"学习c++, 本文介绍其中使用的boost.  

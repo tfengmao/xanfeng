@@ -2,7 +2,7 @@
 title: how debuggers work
 layout: post
 tags: debugger ptrace interrupt
-category: programming
+category: coding
 ---
 
 我在0506总结了"[gdb 原理](http://xanpeng.github.com/2012/05/06/gdb/)", 提到了gdb本质上是使用ptrace系统调用. 今天看到国外同行写了一个"how debuggers work"系列, 理解深刻, 表达简明, 6星推荐! 从中可以看出对于debugger来说, ptrace和INT 3(*trap to debugger*)软中断居功至伟.

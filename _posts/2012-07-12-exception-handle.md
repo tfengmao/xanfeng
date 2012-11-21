@@ -1,7 +1,7 @@
 ---
 title: 如何实现异常处理
 layout: post
-category: programming
+category: coding
 tags: exception handle
 ---
 

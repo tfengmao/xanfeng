@@ -2,7 +2,7 @@
 title: 一些 deadlock 相关的想法
 layout: post
 tags: deadlock lock thoughts
-category: programming
+category: coding
 ---
 
 缘起：[a conversation on DLM lock levels used in X](http://blog.coly.li/?p=81) 中 mark 提到

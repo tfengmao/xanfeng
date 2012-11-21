@@ -2,7 +2,7 @@
 title: 用Doxygen+Graphviz生成函数调用图
 layout: post
 tags: doxygen graphviz call graph function
-category: programming
+category: coding
 ---
 
 *本文不是step-by-step的教程, 而是挂羊头卖狗肉的吐槽.*

@@ -2,7 +2,7 @@
 title: muduo's c++ high-perf logging
 layout: post
 tags: muduo c++ logging performance nontype template
-category: programming
+category: coding
 ---
 
 *接下来我会围绕muduo logging持续更新这一篇博文, 主要涉及c++技法和高性能日志库需要注意的问题.*

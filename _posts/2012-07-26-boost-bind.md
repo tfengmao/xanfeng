@@ -1,7 +1,7 @@
 ---
 title: 理解boost::bind
 layout: post
-category: programming
+category: coding
 tags: cpp boost library
 ---
 

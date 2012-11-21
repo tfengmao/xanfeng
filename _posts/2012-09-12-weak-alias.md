@@ -1,7 +1,7 @@
 ---
 title: 弱符号(weak symbol)和别名(alias)
 layout: post
-category: programming
+category: coding
 tags: glibc socket weak symbol alias
 ---
 

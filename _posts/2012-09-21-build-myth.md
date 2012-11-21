@@ -1,7 +1,7 @@
 ---
 title: 构建的迷思
 layout: post
-category: programming
+category: coding
 tags: build autotools autoconf configure make pkg-config
 ---
 

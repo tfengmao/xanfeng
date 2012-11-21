@@ -2,7 +2,7 @@
 title: 内核开发调试技术
 layout: post
 tags: debug hacks kernel gdb kprobe crash assemble
-category: programming
+category: coding
 ---
 
 *本文是书籍《Debug Hacks中文版-深入调试的技术和工具》的笔记. 这是一本好书, 它介绍了应用程序和内核调试的多方面的技能, 虽然每个点不是非常深入, 但我事先有些许基础, 故而读起来比较畅快! 我给这本书打4.5分, 他是作者数十年经验的传承, 十分珍贵, 然而不足之处在于对于某些工具仅谈其使用, 而不谈其原理. 比如假使在讲述GDB时, 如指出GDB依赖于ptrace()系统调用, 那就完美了!*

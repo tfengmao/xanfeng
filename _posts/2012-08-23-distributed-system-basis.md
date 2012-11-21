@@ -1,7 +1,7 @@
 ---
 title: 了解分布式系统
 layout: post
-category: programming
+category: coding
 tags: distributed system cloud-computing
 ---
 

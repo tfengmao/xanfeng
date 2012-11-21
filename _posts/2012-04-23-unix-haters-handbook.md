@@ -2,7 +2,7 @@
 title: UNIX 痛恨者手册<s>读后笔记</s>
 layout: post
 tags: unix hater handbook google developer
-category: programming
+category: coding
 ---
 
 sina weibo 上有人在批某个 `rm -rf` 的话题, 有人提到 "UNIX 痛恨者手册", 因为我也常用 `rm -rf`, 于是很有兴趣, google 一番得到这篇文章: [UNIX 痛恨者手册读后笔记](http://blog.youxu.info/2011/10/14/notes-on-the-unix-haters-handbook/). 发现作者是徐宥, 是 Google 的软件工程师, 顿时心生敬仰. 看他的页面风格和个人介绍, 也"洋溢"着大牛的风范. 

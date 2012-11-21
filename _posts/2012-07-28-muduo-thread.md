@@ -1,7 +1,7 @@
 ---
 title: 理解muduo.thread
 layout: post
-category: programming
+category: coding
 tags: pthread muduo condition mutex
 ---
 

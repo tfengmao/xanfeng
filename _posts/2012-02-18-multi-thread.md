@@ -2,7 +2,7 @@
 title: multi-thread 程序设计
 layout: post
 tags: thread
-category: programming
+category: coding
 ---
 
 理论书籍和论文:  
