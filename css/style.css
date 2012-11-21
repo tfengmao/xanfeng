@@ -29,7 +29,6 @@ q:before,q:after {
 abbr,acronym { border:0;
 }
 
-
 html {
 	overflow-x:hidden;
 	overflow-y:scroll;
@@ -197,14 +196,14 @@ h2, h3, h4, h5, h6 {
 	line-height:100%;
 }
 h2 {
-	font-size:35px;
-	line-height:150%;
+	font-size:20px;
+	line-height:100%;
 	margin-bottom:20px;
 }
 
 #disqus_thread h3 {
 	margin:20px 0;
-	font-size:22px;
+	font-size:14px;
 }
 
 h4 {
@@ -227,12 +226,12 @@ div#content li ul li {
 }
 .cnt h3 {
 	background:none repeat scroll 0 0 #DDDDDD;
-	font-size:18px;
+	font-size:16px;
 	margin:20px -20px;
 	padding:10px 20px;
 }
 h4 {
-	font-size:20px;
+	font-size:14px;
 }
 ul.columns {
 	-moz-column-gap:20px;
