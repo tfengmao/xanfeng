@@ -95,7 +95,7 @@ div#wrapper {
 }
 
 #content .posts li a:hover {
-	background:#7FFF00;
+	background:#DDDDDD;
 	-moz-border-radius:5px;
 	-webkit-border-radius:5px;
 }
