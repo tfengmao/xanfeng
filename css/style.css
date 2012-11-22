@@ -362,7 +362,7 @@ span.balloon {
 }
 
 #content #sidebar li a:hover {
-	background:#7FFF00;
+	background:#DDDDDD;
 	-moz-border-radius:2px;
 	-webkit-border-radius:2px;
 	border:0;
