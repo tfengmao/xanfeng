@@ -140,6 +140,11 @@ div#content ul.posts li {
 	list-style:none;
 }
 
+p {
+	margin-top:0;
+	margin-bottom:0;
+}
+
 p.nav {
 	color:#000;
 	font-size:15px;
