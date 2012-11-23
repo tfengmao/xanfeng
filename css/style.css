@@ -234,7 +234,8 @@ code {
 	font-family:"Monaco","Monaco",monospace;
 	font-size:12px;
 	line-height:150%;
-	background-color: #EFEFEF;
+	/* background-color: #EFEFEF; */
+	background-color: #DDDDDD;
 	margin:0 0 0 0px;
 }
 pre {
@@ -245,8 +246,9 @@ pre {
 	-moz-box-shadow:0 -1px 0 #444444; 
 	background-color:#EFEFEF;
 	color:#FFFFFF;
-	font-size:13px; */
-	background-color:#EFEFEF;
+	font-size:13px;
+	background-color:#EFEFEF; */
+	background-color:#DDDDDD;
 	border: 1px dashed #909090;
 	margin:0 0 0 0px; 
 	padding:20px;
@@ -275,6 +277,7 @@ em {
 blockquote {
 	margin: 20px 0;
 	color: #111;
+	background-color:#EFEFEF;
 	border-left: 2px solid #111;
 	padding-left: 20px; 
 }
