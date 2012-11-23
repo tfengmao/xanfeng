@@ -151,7 +151,7 @@ p.nav + ul, p.nav + ul a, p.nav + div, p.nav + div a {
 	color:#333;
 }
 
-p.nav + ul, p.nav + div {
+p.nav + ul, p.nav + div, p.nav + blockquote {
 	margin:0;
 }
 
