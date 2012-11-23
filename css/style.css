@@ -236,7 +236,7 @@ code {
 	line-height:150%;
 	/* background-color: #EFEFEF; */
 	background-color: #DDDDDD;
-	margin:0 0 0 0px;
+	margin:0px 0px;
 }
 pre {
 	/*
@@ -250,8 +250,8 @@ pre {
 	background-color:#EFEFEF; */
 	background-color:#DDDDDD;
 	border: 1px dashed #909090;
-	margin:0 0 0 0px; 
 	padding:20px;
+	margin:0px 0px; 
 	white-space:pre-wrap;
 	/* width:800px; */
 	word-wrap:break-word;
@@ -275,7 +275,7 @@ em {
 	color: #696969;
 }
 blockquote {
-	margin: 0 0;
+	margin: 0px 0px;
 	color: #111;
 	background-color:#DDDDDD;
 	border-left: 2px solid #111;
