@@ -232,7 +232,7 @@ hr {
 
 code {
 	font-family:"Monaco","Monaco",monospace;
-	font-size:12px;
+	font-size:11px;
 	line-height:150%;
 	/* background-color: #EFEFEF; */
 	background-color: #DDDDDD;
@@ -256,7 +256,7 @@ pre {
 	/* width:800px; */
 	word-wrap:break-word;
 	font-family:"Monaco","Monaco",monospace;
-	font-size:12px;
+	font-size:11px;
 	line-height:150%;
 }
 div.notice {
@@ -277,7 +277,7 @@ em {
 blockquote {
 	margin: 20px 0;
 	color: #111;
-	background-color:#EFEFEF;
+	background-color:#DDDDDD;
 	border-left: 2px solid #111;
 	padding-left: 20px; 
 }
