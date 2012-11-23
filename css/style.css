@@ -171,26 +171,6 @@ ul.posts li .date {
 	margin:0;
 }
 
-/*
-h1 {
-	-moz-border-radius:5px 5px 5px 5px;
-	-webkit-border-radius:5px;
-	border-radius:5px;
-	-moz-box-shadow:0 1px 0 #FFFFFF;
-	background-color:#222222;
-	color:#FFFFFF;
-	display:inline;
-	float:left;
-	font-weight:400;
-	line-height:150%;
-	padding:10px;
-	text-shadow:0 1px 0 #000000;
-}
-h1 a {
-	color:#FFFFFF;
-	font-weight:400;
-}
-*/
 h2, h3, h4, h5, h6 {
 	font-weight:900;
 	line-height:100%;
@@ -251,8 +231,8 @@ hr {
 }
 
 code {
-	font-family:"Consolas","Courier New",monospace;
-	font-size:11px;
+	font-family:"Monaco","Monaco",monospace;
+	font-size:13px;
 	line-height:150%;
 	background-color: #EFEFEF;
 	margin:0 0 0 0px;
@@ -273,8 +253,8 @@ pre {
 	white-space:pre-wrap;
 	/* width:800px; */
 	word-wrap:break-word;
-	font-family:"Consolas","Courier New",monospace;
-	font-size:11px;
+	font-family:"Monaco","Monaco",monospace;
+	font-size:13px;
 	line-height:150%;
 }
 div.notice {
