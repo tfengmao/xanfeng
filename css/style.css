@@ -144,7 +144,8 @@ p.nav {
 	color:#000;
 	font-size:15px;
 	font-weight:bold;
-	margin:30px 0 10px;
+	/* margin:30px 0 10px; */
+	margin:0;
 }
 
 p.nav + ul, p.nav + ul a, p.nav + div, p.nav + div a {
