@@ -237,7 +237,7 @@ hr {
 
 code {
 	font-family:"Monaco","Monaco",monospace;
-	font-size:11px;
+	font-size:12px;
 	line-height:150%;
 	/* background-color: #EFEFEF; */
 	background-color: #DDDDDD;
@@ -261,7 +261,7 @@ pre {
 	/* width:800px; */
 	word-wrap:break-word;
 	font-family:"Monaco","Monaco",monospace;
-	font-size:11px;
+	font-size:12px;
 	line-height:150%;
 }
 div.notice {
