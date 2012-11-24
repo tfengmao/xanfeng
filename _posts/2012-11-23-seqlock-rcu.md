@@ -1,7 +1,7 @@
 ---
 title: 顺序锁(seqlock)和RCU
 layout: post
-category: kernel
+category: linux
 tags: seqlock rcu
 ---
 
