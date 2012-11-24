@@ -1,5 +1,5 @@
 ---
-title: 内核线程
+title: 内核线程(kernel thread)
 layout: post
 tags: linux kernel thread
 category: linux
