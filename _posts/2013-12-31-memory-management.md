@@ -1,5 +1,5 @@
 ---
-title: 【置顶】内存管理相关文章
+title: 【内存管理相关文章】
 layout: post
 category: linux
 tags: memory kernel
