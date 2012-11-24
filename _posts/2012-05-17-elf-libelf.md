@@ -1,8 +1,8 @@
 ---
-title: elf & libelf, elftoolchain
+title: elf和elftoolchain
 layout: post
-tags: elf libelf readelf objdump x86_64 amd64 ia-64
 category: linux
+tags: elf libelf readelf objdump x86_64 amd64 ia-64
 ---
 
 #calltrace

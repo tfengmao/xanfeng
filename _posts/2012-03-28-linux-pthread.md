@@ -1,5 +1,5 @@
 ---
-title: pthreads多线程库
+title: pthreads多线程库(一)
 layout: post
 category: linux
 tags: linux process thread pthreads NPTL

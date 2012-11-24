@@ -1,8 +1,8 @@
 ---
-title: Linux Process Group & Threads Group
+title: 进程组和线程组
 layout: post
-tags: process thread group linux session
 category: linux
+tags: process thread group linux session
 ---
 
 不知为何, 网上讨论 Process Group 和 Threads Group 的都很少.  
