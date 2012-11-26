@@ -12,8 +12,8 @@ IBM dw上的文章“[使用异步 I/O 大大提高应用程序的性能](http:/
 ![](/images/io-model.gif)  
 另外，“[IO - 同步，异步，阻塞，非阻塞 （亡羊补牢篇）](http://blog.csdn.net/historyasamirror/article/details/5778378)”也不错。  
 
-还是回到kouu的文章。Linux的IO流程比较复杂，分直接IO(Direct IO)和非直接IO两种。非直接IO指会利用Page Cache，直接IO指不经过Page Cache，用户程序直接面对存储设备。  
-在使用Page Cache的时候，用户读写文件，实际上是从Page Cache读、写到Page Cache就完事了，真正的存储设备访问动作是由Page Cache代理的。——所以，非直接IO模式下，不管用户程序是同步/异步IO，用户程序不能“大展手脚”。  
+还是回到kouu的文章。Linux的IO流程比较复杂，分直接IO(Direct IO)和非直接IO两种。非直接IO指会利用Page Cache；直接IO指不经过Page Cache，用户程序直接面对存储设备。  
+在使用Page Cache的时候，用户读写文件，实际上是从Page Cache读、写到Page Cache就完事了，真正的存储设备访问动作是由Page Cache代理的。——所以，非直接IO模式下，不管用户程序是同步/异步IO，留给用户程序的余地不大，对libaio而言更是如此。  
 因此看起来，异步IO时，更适合同时使用直接IO。  
 
 另一方面，glibc aio是通过线程模拟实现异步的；而内核支持的libaio则是真正利用了**CPU和存储设备可并行工作**的特性。  
