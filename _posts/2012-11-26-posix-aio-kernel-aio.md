@@ -1,5 +1,5 @@
 ---
-title: [IO] Linux异步IO初探
+title: Linux异步IO初探
 layout: post
 category: coding
 tags: glibc aio libaio
