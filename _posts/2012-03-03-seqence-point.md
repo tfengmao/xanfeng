@@ -41,7 +41,10 @@ void func(int val)
 int main(int argc, char *argv[]) 
 {
     int a = 1;
-    func(a++);	// 怎么理解这个a++？
+	// 怎么理解这个a++？程序会以某种顺序求值(evaluate)func、a++，然后进入函数体。
+	// a++这里求值的结果当然是1。
+	// func执行后，当然经历了无数个sequence point，这时main函数中的a++的副作用自然早已生效。
+    func(a++);
     return 0;
 }
 {% endhighlight %}
