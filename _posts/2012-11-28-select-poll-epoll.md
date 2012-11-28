@@ -101,3 +101,16 @@ int main(void)
 }
 {% endhighlight %}
 
+###non-blocking regular file无意义
+
+延续上一节的内容，继续讨论常规文件，以O_NONBLOCK的方式操作常规文件是没有意义的：  
+1、[Can regular file reading benefited from nonblocking-IO?](http://stackoverflow.com/questions/5613354/can-regular-file-reading-benefited-from-nonblocking-io)  
+2、[Non-blocking I/O with regular files](http://www.remlab.net/op/nonblock.shtml)  
+
+O_NONBLOCK不是异步IO，blocking、non-blocking的效果是一样的。摘引第二个链接的内容：  
+> Regular files are **always** readable and they are also **always** writeable. This is clearly stated in the relevant POSIX specifications. **I cannot stress this enough. Putting a regular file in non-blocking has ABSOLUTELY no effects** other than changing one bit in the file flags.  
+>  
+> Reading from a regular file might take a long time. For instance, if it is located on a busy disk, the I/O scheduler might take so much time that the user will notice the application is frozen.  
+>   
+> Nevertheless, non-blocking mode will not work. It simply will not work. Checking a file for readability or writeability always succeeds immediately. If the system needs time to perform the I/O operation, it will put the task in non-interruptible sleep from the read or write system call.
+
