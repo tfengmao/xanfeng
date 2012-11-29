@@ -115,7 +115,7 @@ O_NONBLOCK不是异步IO，blocking、non-blocking的效果是一样的。摘引
 
 ###pselect
 
-pselect类似于select，二者的重要区别是对信号量的处理。但其中的细节十分微妙，不好理解。`man select_tut` “Combining Signal and Data Events”部分的解释也十分模糊，在理解之前，对理解有弊无利。  
+pselect类似于select，二者的重要区别是对信号量的处理。但其中的细节十分微妙，不好理解。`man select_tut` “Combining Signal and Data Events”部分的解释也十分模糊，对理解有弊无利。  
 先来解释这里的问题到底是什么。参考“[The new pselect() system call](http://lwn.net/Articles/176911/)”，在需要信号处理时，程序往往是这么写的：  
 {% highlight c %}
 static void handler(int sig) { /* do nothing */  }
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
 但是这段代码存在一个“race condition”：如果SIGINT在select调用之前（更细致地，进入内核之前？）发生，那么其后执行的select()将**不能被中断**，假如没有设置timeout，则进程就会永远被block在select()处。  
 
 你定然觉得奇怪：为什么这个情况下的select()不能被中断？！原因是：  
-1、信号处理函数是在用户态定义的，但却是被内核触发调用的。有两处资料证明：1）“[linux异步信号handle浅析](http://xanpeng.github.com/coding/2012/11/24/kouu-posts.html)”；2）ULK3第十一章“传递信号”（“我们在第四章“从中断和异常返回”一节中提到，内核在允许进程恢复用户态下的执行之前，检查进程TIF_SIGPENDING标志的值。每当内核处理完一个中断或异常时，就检查是否存在挂起信号...”）。  
+1、信号处理函数是在用户态定义的，但却是被内核触发调用的。有两处资料证明：1）“[linux异步信号handle浅析](http://xanpeng.github.com/coding/2012/11/24/kouu-posts.html)”；2）ULK3第十一章“传递信号”（<blockquote>我们在第四章“从中断和异常返回”一节中提到，内核在允许进程恢复用户态下的执行之前，检查进程TIF_SIGPENDING标志的值。每当内核处理完一个中断或异常时，就检查是否存在挂起信号...</blockquote>）。  
 2、信号分常规信号（regular signal，1～31，SIGINT是2）和实时信号（real-time signal，32～64）。（在内核中）同种常规信号不排队，如果一个常规信号被发送多次，只有其中一次被发送到接收进程。相反实时信号是排队的。  
 
 理解了这个竞态问题的关键后，来考虑怎么解决此竞态问题。“[The new pselect() system call](http://lwn.net/Articles/176911/)”提到一种work-around的方法，不过实现复杂。因此POSIX.1g才提出了增强版的select——pselect。使用pselect解决此问题的代码是这样的：  
