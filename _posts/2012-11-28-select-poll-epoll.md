@@ -203,4 +203,11 @@ ppoll和poll的关系，类似于pselect和select的关系。
 
 ###epoll
 
+epoll不是一个API，而是“I/O event notification facility”，`man epoll`可以看到非常细致的资料，并且其中解释了level-triggered、edge-triggered。  
 
+摘引别人的解释：  
+> epoll支持水平触发和边缘触发，最大的特点在于边缘触发，它只告诉进程哪些fd刚刚变为就需态，并且只会通知一次。  
+> 在前面说到的复制问题上，epoll使用mmap减少复制开销。  
+> 还有一个特点是，epoll使用“事件”的就绪通知方式，通过epoll_ctl注册fd，一旦该fd就绪，内核就会采用类似callback的回调机制来激活该fd，epoll_wait便可以收到通知。  
+
+一个使用epoll的socket server的例子：[epoll_server.c](https://github.com/xanpeng/libraries-misc/blob/master/epoll-server.c)  
