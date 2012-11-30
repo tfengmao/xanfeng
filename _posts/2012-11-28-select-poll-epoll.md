@@ -190,3 +190,17 @@ lnext = ^V; flush = ^O; min = 1; time = 0;
 opost -olcuc -ocrnl onlcr -onocr -onlret -ofill -ofdel nl0 cr0 tab0 bs0 vt0 ff0
 isig icanon iexten echo echoe echok -echonl -noflsh -xcase -tostop -echoprt echoctl echoke
 {% endhighlight %}
+
+###poll
+
+`int poll(struct pollfd *fds, nfds_t nfds, int timeout);`  
+poll和select的逻辑是一致的，只不过poll是通过链表的方式组织fd的，比select的数组要灵活。  
+看到有人还这么描述poll：“poll还有一个特点是"水平触发(level-triggered)"，如果报告了fd后，没有被处理，那么下次poll时会再次报告该fd。”——从代码可以看出的确如此，只不过我不确定这就是“水平触发”？  
+
+ppoll和poll的关系，类似于pselect和select的关系。  
+
+另外，poll、select面临同样的问题，便是进入内核时，需要把fd数组或链表拷进内核，在fd很多时会影响性能。fd很多时，它们的这种轮询方式也很耗时。  
+
+###epoll
+
+
