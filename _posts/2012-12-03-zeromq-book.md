@@ -5,7 +5,7 @@ category: coding
 tags: zeromq socket
 ---
 
-看zeromq guide的时候，首章“[Fixing the World](http://zguide.zeromq.org/page:all#Fixing-the-World)”描述了软件世界，它的说法与我的认知符合，故简译于此。
+看zeromq guide的时候，首章“[Fixing the World](http://zguide.zeromq.org/page:all#Fixing-the-World)”描述了软件世界，它的说法与我的认知符合：基础设施必须**简单可依赖**（没错，百度的这个slogan为我深刻认同！）。
 
 How to explain ØMQ? Some of us start by saying all the wonderful things it does. It's sockets on steroids. It's like mailboxes with routing. It's fast! Others try to share their moment of enlightenment, that zap-pow-kaboom satori paradigm-shift moment when it all became obvious. **Things just become simpler. Complexity goes away. It opens the mind.** Others try to explain by comparison. It's smaller, simpler, but still looks familiar. Personally, I like to remember why we made ØMQ at all, because that's most likely where you, the reader, still are today.  
 但事物变简单的时候，或者经过我们的努力（封装），使得事物使用变得简单的时候，我们便更容易打开思路，构建更丰富的上层功能。  
