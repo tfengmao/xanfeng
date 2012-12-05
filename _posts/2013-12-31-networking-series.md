@@ -14,3 +14,4 @@ tags: networking socket
 【2】博文。  
 1、[从网卡往上](http://xanpeng.github.com/linux/2012/09/08/kernel-networking-stack.html)：偏内核和网卡驱动。  
 2、[socket的实现](http://xanpeng.github.com/linux/2012/09/20/socket-implementation.html)：结合前文，理解socket用户态API。  
+3、[粗读muduo.net](http://xanpeng.github.com/coding/2012/08/02/muduo-net.html)：触及场景和模式了。  
