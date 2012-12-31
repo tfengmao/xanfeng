@@ -70,3 +70,8 @@ vermagic:       2.6.37.1-1.2-desktop SMP preempt mod_unload modversions
 
 ###细节和示例
 
+先说设备和驱动（device & driver），ULK3、LDD3都细致描述了这个话题，比如[LDD3 Ch14 The Linux Device Model](http://lwn.net/images/pdf/LDD3/ch14.pdf) “Putting It All Together”部分举例说明了整个流程。  
+简单说来，Linux设备模型有三部分：bus、device和driver，从/sys可以看到其层级关系。这个关系是：先有bus，bus关联drivers和devices，当加入device时，bus会遍历drivers去match device。  
+一个device可以match到多个driver，也可能没有match到任何driver。代码参见driver\_add->bus\_probe\_device()。  
+看起来，**device是可以没有对应的driver的**。比如一个虚拟bus下，没有任何driver，加入device时，定然match不到任何driver，也照样可以工作。  
+
