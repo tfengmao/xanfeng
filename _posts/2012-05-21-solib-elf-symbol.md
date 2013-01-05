@@ -201,7 +201,7 @@ elf不消说了, 看"[elf & libelf, elftoolchain](http://xanpeng.github.com/2012
 
 至此, 对symbols和共享库,ELF的关系的了解告一段落.
 
-#more
+###more
 
 既然已经说到共享库(shared library), 不妨稍微提一下动态装载库([Dynamically Loaded Libraries](http://tldp.org/HOWTO/Program-Library-HOWTO/dl-libraries.html)), 共享库是在程序startup时被加载, 而DLL(注意区别于windows下的概念)则是在程序运行过程中显式被加载, 实际上就是调用dlopen,dlsym等接口显式地打开共享库, 显示地查找库中的symbol, 然后找到对应的代码去执行.
 
