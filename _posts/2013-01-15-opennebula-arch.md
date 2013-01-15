@@ -57,7 +57,9 @@ ONE的web server是sunstone，启动之后，便可以通过http://localhost:986
 
 要支持上面的操作，需要启动一些后台进程(线程)，不做描述，仅列出示意图(仍摘自上面网友的博文)。  
 ![](/images/one_oned.png)  
+
 ![](/images/one_process_pipe.png)  
+
 ![](/images/one_create_vm.png)  
 
 两个有意思的点：  
