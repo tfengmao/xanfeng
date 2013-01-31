@@ -37,7 +37,7 @@ JavaScript的语法十分接近C的语法，不同之处是它是弱类型的、
 5 在每个函数的头部声明所有变量。  
 6 使用函数表达式，而不是function语句。  
 
-{% highlight JavaScript %}
+{% highlight javascript %}
 // 函数表达式
 var foo = function foo() {...};
 // function语句，在解析时会发生被提升的情况：不管放置在何处，都会被移动到被定义时所在作用域的顶层。
@@ -55,7 +55,7 @@ function foo() {...}
 2 有类似于C语言的代码块(一对花括号包含)，但却没有对应的块级作用域，因此经常让人吃惊。  
 3 自动插入分号，看示例：  
 
-{% highlight JavaScript %}
+{% highlight javascript %}
 // 下面的return语句中，return后面会被自动插入分号，
 // 从而使得：意图是返回一个对象字面量，结果是"return;"返回undefined。
 return
