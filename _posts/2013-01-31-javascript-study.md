@@ -87,6 +87,41 @@ JSON对象是一个key-value对的无序集合，key可以是任何字符串，v
 
 JSON使用：不用eval，也不用XMLHttpRequest(只能从生成HTML的同一服务器获取数据)，而是用[JSON.parse](https://github.com/douglascrockford/JSON-js)。
 
-###常用库
+###[JQuery](http://www.w3schools.com/jquery/default.asp)
 
+features:  
+1 HTML/DOM操作。  
+2 CSS操作。 
+3 HTML event methods.  
+4 effects & animations.  
+5 AJAX.  
+6 Utilities.  
+
+语法：$(selector).action()  
+* A $ sign to define/access jQuery.  
+* A (selector) to "query (or find)" HTML elements.  
+* A jQuery action( to be performed on the element(s))  
+
+语法示例:  
+`$(this).hide()` - hides the current element.  
+element selector: `$("p").hide()` - hides all <p> elements.  
+.class selector: `$(".test").hide()` - hides all elements with class="test".  
+\#id selector: `$("#test").hide()` - hides the element with id="test".  
+组合选择：  
+![](/images/jquery_selector.png)  
+
+DOM操作：  
+1 get/set content - text(), html(), val().  
+* text() - Sets or returns the text content of selected elements  
+* html() - Sets or returns the content of selected elements (including HTML markup)  
+* val() - Sets or returns the value of form fields  
+2 get/set attributes - attr().  
+3 add elements - append(), prepend(), after(), before().  
+4 remove elements - remove(), empty().  
+5 dimension methods(*图片引自w3schools*):  
+![](http://www.w3schools.com/jquery/img_jquerydim.gif)  
+
+[jQuery AJAX](http://www.w3schools.com/jquery/jquery_ref_ajax.asp)([Asynchronous JavaScript and XML](http://www.w3schools.com/jquery/jquery_ref_ajax.asp)): exchanging data with server, and updating parts of a web page.  
+1 load() - `$(selector).load(URL, [data], [callback])`，从server获取数据，加载到选定的页面元素中。  
+2 [get() & post()](http://www.w3schools.com/jquery/jquery_ajax_get_post.asp)  
 
