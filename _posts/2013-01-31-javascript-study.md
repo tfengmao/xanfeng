@@ -103,7 +103,7 @@ $(selector).action()
 * A (selector) to "query (or find)" HTML elements.  
 * A jQuery action( to be performed on the element(s))  
 
-*语法示例*  
+**语法示例**  
 `$(this).hide()` - hides the current element.  
 element selector: `$("p").hide()` - hides all \<p\> elements.  
 .class selector: `$(".test").hide()` - hides all elements with class="test".  
@@ -111,7 +111,7 @@ element selector: `$("p").hide()` - hides all \<p\> elements.
 组合选择 -  
 ![](/images/jquery_selector.png)  
 
-*DOM操作*  
+**DOM操作**  
 1 get/set content - text(), html(), val().  
 * text() - Sets or returns the text content of selected elements  
 * html() - Sets or returns the content of selected elements (including HTML markup)  
