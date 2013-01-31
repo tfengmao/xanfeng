@@ -10,7 +10,7 @@ tags: javascript function clousure
 我想，肯定是可以写得更好的！于是我开始阅读那本著名的图书“[JavaScript: The good parts](http://book.douban.com/subject/2994925/)”(值得多次阅读的书！)。结果是书中的内容让我激动，它展示了JavaScript是一个功能强大的、有大量优点和一些设计缺陷的、面向对象的函数式编程语言。  
 本文记录一些重点，同时我创建了[一个repo](https://github.com/xanpeng/javascript-recipes)，会在上面放置一些示例代码和留待后用的代码。  
 
-在开始之前要特别声明：我的核心工作将仍然是分布式后台，此次JavaScript学习就当是一项兴趣之旅，我决不会+决不会借此转入前端！
+在开始之前要特别声明：我的核心工作将仍然是分布式后台，此次JavaScript学习就当是一项兴趣之旅，我决不会+决不能借此转入前端！
 
 ###语法
 
