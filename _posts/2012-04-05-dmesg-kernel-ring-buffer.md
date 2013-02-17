@@ -1,5 +1,5 @@
 ---
-title: Linux kernel ring buffer 和 dmesg
+title: dmesg和内核ring buffer
 layout: post
 tags: dmesg kernel buffer trace
 category: linux
