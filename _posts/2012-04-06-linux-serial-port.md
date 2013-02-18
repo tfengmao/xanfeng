@@ -1,5 +1,5 @@
 ---
-title: Linux 串口(serial port)
+title: 串口(serial port)
 layout: post
 tags: linux kernel serial port capture crash
 category: linux
@@ -20,8 +20,6 @@ IPMI是在服务器之上有一直连的BMC(Baseboard management controller)设�
     # ipmitool –I lanplus –H <BMC_IP> -U <usrname> –P <passwd> sol activate
     
 其中sol是“serial over lan”的缩写。
-
-*希望从本文始，我能“理论+实践”，慢慢的掌握kernel panic分析的方法。*
 
 **参考资料**  
 - [Linux 下串口编程入门](http://www.ibm.com/developerworks/cn/linux/l-serials/)  
