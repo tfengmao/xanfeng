@@ -49,7 +49,7 @@ kgdboc的具体配置参考[upstream文章](http://www.kernel.org/doc/htmldocs/k
 
 选项之三是kgdbcon，允许在gdb中看到被测内核的printk消息。怪异的是这个选项不能在作为system console的tty上使用。  
 
-但是配置kgdb＋gdb的过程十分麻烦，我的希望两台虚机通过串口互联，但不知如何做到。  
+但是配置kgdb＋gdb的过程十分麻烦，我希望两台虚机通过串口互联，但不知如何做到。  
 1、我尝试通过virt-manager虚拟一个串口设备，将两个虚机的虚拟串口都绑定到主机的ttyS0（通过setserial -g查看，以UART不是unknown为依据，可以判断主机有两个物理串口ttyS0和ttyS4），但这显然想当然了，虚机A echo ttyS0并不能使得虚机B cat ttyS0读到内容。  
 2、虚机A使用物理ttyS0，虚机B使用物理ttyS4，应该需要主机的两个串口物理连接。但我没有找到连接线，而且也不想用这种物理方法。  
 3、虚机A串口虚机方式为output to file，实际上是将串口输出定向到主机对应的文件，但这却不能做到虚机互联。  
