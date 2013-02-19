@@ -6,13 +6,16 @@ category: linux
 ---
 
 你们都用 [PuTTY](http://en.wikipedia.org/wiki/PuTTY) 连接一台公共服务器, 你输入 **w**/**who** 命令, 得到:  
-    $ w  
-    USER     TTY        LOGIN@   IDLE   JCPU   PCPU WHAT  
-    root     pts/0     13:38    0.00s  0.04s  0.00s w  
-    root     pts/1     Wed19   42:12m  0.03s  0.03s -bash  
-    $ who  
-    root     pts/0        Mar  2 13:38 (xxx.xxx.xxx.xxx)  
-    root     pts/1        Feb 29 19:53 (xxx.xxx.xxx.xxx)  
+
+{% highlight text %}
+$ w  
+USER     TTY        LOGIN@   IDLE   JCPU   PCPU WHAT  
+root     pts/0     13:38    0.00s  0.04s  0.00s w  
+root     pts/1     Wed19   42:12m  0.03s  0.03s -bash  
+$ who  
+root     pts/0        Mar  2 13:38 (xxx.xxx.xxx.xxx)  
+root     pts/1        Feb 29 19:53 (xxx.xxx.xxx.xxx)  
+{% endhighlight %}
 
 这里的 pts/X 是什么意思?  
 甚至, putty 是如何连接 Server 的?  
@@ -20,21 +23,22 @@ category: linux
 
 了解更多之后, 我们发现 tty[[1]](http://en.wikipedia.org/wiki/Tty_\(Unix\))[[2]](http://en.wikipedia.org/wiki/Teleprinter), 这又是什么概念?  
 执行下面的指令:  
-    linux-hvsm:~ # ps a | grep tty  
-    6637 tty1     Ss+    0:00 /sbin/mingetty --noclear tty1  
-    6638 tty2     Ss+    0:00 /sbin/mingetty tty2  
-    6639 tty3     Ss+    0:00 /sbin/mingetty tty3  
-    6640 tty4     Ss+    0:00 /sbin/mingetty tty4  
-    6641 tty5     Ss+    0:00 /sbin/mingetty tty5  
-    6642 tty6     Ss+    0:00 /sbin/mingetty tty6  
+
+{% highlight text %}
+linux-hvsm:~ # ps a | grep tty  
+6637 tty1     Ss+    0:00 /sbin/mingetty --noclear tty1  
+6638 tty2     Ss+    0:00 /sbin/mingetty tty2  
+6639 tty3     Ss+    0:00 /sbin/mingetty tty3  
+6640 tty4     Ss+    0:00 /sbin/mingetty tty4  
+6641 tty5     Ss+    0:00 /sbin/mingetty tty5  
+6642 tty6     Ss+    0:00 /sbin/mingetty tty6  
+{% endhighlight %}
 
 这里的 /sbin/[mingetty](http://linux.die.net/man/8/mingetty), ttyX 又是什么?
 
 tty, pts, terminal, console 这些相关的概念是不是让人无比纠结?  
-幸好 unix.stackexchange 上有人讨论了这些概念: [讨论1](http://unix.stackexchange.com/questions/33155/why-there-are-six-getty-processes-running-on-my-desktop), [讨论2](http://unix.stackexchange.com/questions/4126/what-is-the-exact-difference-between-a-terminal-a-shell-a-tty-and-a-con).  
-本文参考这些讨论, 做出利己理解的总结.
+幸好 unix.stackexchange 上有人讨论了这些概念: [讨论1](http://unix.stackexchange.com/questions/33155/why-there-are-six-getty-processes-running-on-my-desktop), [讨论2](http://unix.stackexchange.com/questions/4126/what-is-the-exact-difference-between-a-terminal-a-shell-a-tty-and-a-con)：  
 
-#答案
 In unix terminology, short answer:  
 > terminal = tty = text input/output environment  
 > console = physical terminal  
@@ -51,8 +55,7 @@ In unix terminology, long answer:
 
 有人问了一个相关的问题: ["Why is a virtual terminal “virtual”, and what/why/where is the “real” terminal?"](http://askubuntu.com/questions/14284/why-is-a-virtual-terminal-virtual-and-what-why-where-is-the-real-terminal), 可以从中了解更多.
 
-#回到我自己的问题
-我在 Windows OS 下使用 [putty](http://en.wikipedia.org/wiki/PuTTY) 连接到 Linux server.  
+回到我自己的问题，我在 Windows OS 下使用 [putty](http://en.wikipedia.org/wiki/PuTTY) 连接到 Linux server.  
 ==>  
 我使用 putty 软件模拟的终端和 Server 交互. 我执行 w/who, 发现有很多 pts/X, 这说明有多个终端正连接到 server. file /dev/pts/X 可以看出, 这是字符设备文件. 我同时打开两个 putty 窗口连接同一 server, 再 w/who 一下, 根据 ip 地址发现我使用了两个 pts/X, 这说明我建立了两个连接, 就好像我用两套"键盘+显示器"操作同一主机一样.
 
