@@ -1,5 +1,5 @@
 ---
-title: printk 级别控制
+title: printk控制
 layout: post
 tags: log level printk dmesg
 category: linux
@@ -55,15 +55,10 @@ printk 用来打印内核日志, 它的用法举例:
 
     # echo 8 > /proc/sys/kernel/printk
 
-**more...**
-
-*redirecting console messages*  
-
-使用 ioctl(TIOCLINUX) 选择接收日志的 virtual terminal.
-
-*how messages get logged*  
-
-printk 将消息写入大小为 __LOG_BUF_LEN(4KB~1MB) 的 ring buffer, 写入后 wakeup 等待消息的进程:
+更多：  
+1、使用 ioctl(TIOCLINUX) 选择接收日志的 virtual terminal.
+2、how messages get logged：  
+printk将消息写入大小为 __LOG_BUF_LEN(4KB~1MB) 的 ring buffer, 写入后 wakeup 等待消息的进程:  
 + 在 syslog 系统调用中睡眠的进程 - syslog 可以选择将 logdata 留在那里给其他进程.  
 + 正在读取 /proc/kmsg 的进程 - consume data from the log buffer.  
 
