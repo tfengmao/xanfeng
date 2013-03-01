@@ -1,5 +1,5 @@
 ---
-title: 动态连接库和符号
+title: 动态连接库和符号(symbol)
 layout: post
 tags: so library shared symbols elf ldconfig
 category: linux
