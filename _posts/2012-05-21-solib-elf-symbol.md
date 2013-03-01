@@ -48,7 +48,7 @@ elf的内容参考"[elf & libelf, elftoolchain](http://xanpeng.github.com/2012/0
 实际上, 我们知道机器可执行的是machine code, 而我们使用的高级语言编程, 并不是利用晦涩的机器码, 而是用human-readable的变量名, 函数名等, 这些名字就是**symbolic name**. 编译器在编译时收集symbol信息, 并储存在object file的.symtab和.dynsym中. symbols是**linker**和**debugger**所必需的信息, 如果没有symbols, 试想debugger如何能展示给用户调试信息了? 如果没有symbol, 而只有地址(相对于object file的offset), linker如何能够链接多个object file了?  
 对于linker和symbol, 我们可以做个小实验:
 
-{% highlight c %}
+{% highlight text %}
 // 编写一个简单的 a.c
 $ cat a.c
 void func(void)
