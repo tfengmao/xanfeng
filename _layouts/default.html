@@ -15,9 +15,18 @@
 						<li>
 							<a href="/index.html">ARTICLES</a>
 							<ul>
+								<!--
 								{% for category in site.categories %}
 								<li><a href="/{{ category[0] | downcase }}.html">{{ category[0] }}({{ category | last | size }})</a></li>
 								{% endfor %}
+								-->
+								<li><a href="/career.html">CAREER({{ site.categories['career'] | last | size }})</a></li>
+								<li><a href="/cloud.html">CLOUD({{ site.categories['cloud'] | last | size }})</a></li>
+								<li><a href="/coding.html">CODING({{ site.categories['coding'] | last | size }})</a></li>
+								<li><a href="/desktop.html">DESKTOP({{ site.categories['desktop'] | last | size }})</a></li>
+								<li><a href="/life.html">LIFE({{ site.categories['life'] | last | size }})</a></li>
+								<li><a href="/linux.html">LINUX({{ site.categories['linux'] | last | size }})</a></li>
+								<li><a href="/scripts.html">SCRIPTS({{ site.categories['scripts'] | last | size }})</a></li>
 							</ul>
 						</li>
 						<li><a href="/links.html">LINKS</a></li>
