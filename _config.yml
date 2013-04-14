@@ -1,3 +1,4 @@
 markdown: rdiscount
 pygments: true
 title: xanpeng
+base_url: http://xanpeng.github.io
