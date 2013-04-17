@@ -37,7 +37,7 @@ ONE的web server是sunstone，启动之后，便可以通过http://localhost:986
 
 上面还在前端，下面开始进入web服务器流程。  
 
-5、sunstone是ruby脚本，它采用的web server是[Sinatra](http://www.sinatrarb.com/)，sunstone-server.rb指定了POST的响应函数，是“@SunstoneServer.perform_action(...)”。 
+5、sunstone是ruby脚本，它采用的web server是[Sinatra](http://www.sinatrarb.com/)，sunstone-server.rb指定了POST的响应函数，是“@SunstoneServer.perform_action(...)”。  
 6、perform_action@SunstoneServer.rb。  
 7、perform_action@VirtualMachineJSON.rb，找不到create，就看deploy吧。  
 8、super.deploy，也就是VirtualMachine.deploy，位于src/oca/ruby/OpenNebula/VirtualMachine.rb。oca是OpenNebula Cloud API的缩写，据此可以感受到ONE的架构逻辑。  
